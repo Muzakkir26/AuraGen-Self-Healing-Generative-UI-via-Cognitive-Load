@@ -68,17 +68,6 @@ Clone with:
 git clone https://github.com/Muzakkir26/AuraGen-Self-Healing-Generative-UI-via-Cognitive-Load.git
 ```
 
-## Timeline
-
-| Week | Dates | Focus |
-|---|---|---|
-| Week 1 | 5–11 Nov | Code-gen prompting · telemetry tracker |
-| Week 2 | 12–18 Nov | Babel safety and compilation · dynamic injection |
-| Mid review | 20–27 Nov | Generation audit · telemetry check |
-| Week 3 | 19–25 Nov | Context awareness (keep typed data) · morphing animation |
-| Week 4 | 26 Nov – 4 Dec | Latency under 2 s (caching, streaming) · fallback states |
-| Final review | 5–10 Dec | Full secure real-time pipeline and demo |
-
 ## Setup
 
 Setup steps will be added as each module lands. Secrets live in a local `.env` file, which is never committed. Copy [`.env.example`](.env.example) to start.
