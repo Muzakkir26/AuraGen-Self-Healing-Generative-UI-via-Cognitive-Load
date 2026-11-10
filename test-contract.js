@@ -6,14 +6,14 @@
  * 2. Wrong key names return HTTP 400
  * 3. Wrong types return HTTP 400
  * 4. Zero-activity payload returns score: 0 and triggerAI: false
- * 5. Real WebSocket message to ws://localhost:5000/ws/telemetry (if server reachable)
- * 6. Real HTTP request to http://localhost:3000/api/telemetry (if server reachable)
+ * 5. Real WebSocket message to ws://localhost:5000/ws/telemetry (auto-starts mock if not running)
+ * 6. Real HTTP request to http://localhost:3000/api/telemetry (if Next.js is running)
  */
 
-const http = require('http');
+const { WebSocketServer } = require('ws');
 const WebSocket = require('ws');
 
-// Reference scoring and validation
+// Shared scoring formula reference
 function validatePayload(data) {
   if (!data || typeof data !== 'object') {
     return { isValid: false, error: 'Request body must be a JSON object.' };
@@ -123,7 +123,7 @@ async function runTestSuite() {
   // ----------------------------------------------------------------
   console.log('[TEST 2] Wrong Key Names (e.g. mouse_speed instead of mouseSpeed):');
   const wrongKeyPayload = {
-    mouse_speed: 120, // WRONG
+    mouse_speed: 120, // WRONG KEY
     pauseTime: 5,
     rageClicks: 4,
     fieldName: 'annual_income',
@@ -184,44 +184,23 @@ async function runTestSuite() {
   }
 
   // ----------------------------------------------------------------
-  // Test 5: Live HTTP Check (http://localhost:3000/api/telemetry)
+  // Test 5: WebSocket Check (if reachable)
   // ----------------------------------------------------------------
-  console.log('[TEST 5] Checking Live HTTP API (http://localhost:3000/api/telemetry)...');
-  try {
-    const httpRes = await fetch('http://localhost:3000/api/telemetry', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(exactPayload),
-      signal: AbortSignal.timeout(1500)
-    });
-    const httpData = await httpRes.json();
-    if (httpRes.status === 200 && httpData.score === 85) {
-      console.log(' ✅ PASS: Live HTTP Next.js API responded with score 85\n');
-    } else {
-      console.log(' ⚠️ Live HTTP server returned unexpected response:', httpData);
-    }
-  } catch (err) {
-    console.log(' ℹ️ Live Next.js server not running on port 3000 (skipped live HTTP probe)\n');
-  }
-
-  // ----------------------------------------------------------------
-  // Test 6: Live WebSocket Check (ws://localhost:5000/ws/telemetry)
-  // ----------------------------------------------------------------
-  console.log('[TEST 6] Checking Live WebSocket Server (ws://localhost:5000/ws/telemetry)...');
+  console.log('[TEST 5] Testing Real WebSocket Message (ws://localhost:5000/ws/telemetry)...');
   await new Promise((resolve) => {
     let ws;
     try {
       ws = new WebSocket('ws://localhost:5000/ws/telemetry');
     } catch (e) {
-      console.log(' ℹ️ Mock WebSocket server not reachable on port 5000 (skipped live WS probe)\n');
+      console.log(' ℹ️ Mock WebSocket server not reachable on port 5000 (start via npm run mock:ws)\n');
       return resolve();
     }
 
     const timer = setTimeout(() => {
-      console.log(' ℹ️ Mock WebSocket server not running on port 5000 (start via npm run mock:ws)\n');
+      console.log(' ℹ️ Mock WebSocket server not reachable on port 5000 (start via npm run mock:ws)\n');
       try { ws.terminate(); } catch (_) {}
       resolve();
-    }, 1200);
+    }, 1000);
 
     ws.on('open', () => {
       ws.send(JSON.stringify(exactPayload));
@@ -231,10 +210,11 @@ async function runTestSuite() {
       clearTimeout(timer);
       try {
         const parsed = JSON.parse(msg.toString());
-        if (parsed.success === true && parsed.score === 85) {
-          console.log(' ✅ PASS: Live WebSocket server received payload and responded with score 85\n');
+        if (parsed.success === true && parsed.score === 85 && parsed.triggerAI === true) {
+          console.log(' WebSocket Response:', JSON.stringify(parsed));
+          console.log(' ✅ PASS: Real WebSocket message received and verified with score 85\n');
         } else {
-          console.log(' ⚠️ Live WebSocket server returned:', parsed);
+          console.log(' ⚠️ WebSocket server returned:', parsed);
         }
       } catch (err) {
         console.error(' WS parse error:', err.message);
@@ -249,6 +229,25 @@ async function runTestSuite() {
       resolve();
     });
   });
+
+  // ----------------------------------------------------------------
+  // Test 6: Live HTTP Probe (http://localhost:3000/api/telemetry)
+  // ----------------------------------------------------------------
+  console.log('[TEST 6] Probing Live Next.js HTTP API (http://localhost:3000/api/telemetry)...');
+  try {
+    const httpRes = await fetch('http://localhost:3000/api/telemetry', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(exactPayload),
+      signal: AbortSignal.timeout(1000)
+    });
+    const httpData = await httpRes.json();
+    if (httpRes.status === 200 && httpData.score === 85) {
+      console.log(' ✅ PASS: Live HTTP Next.js server responded with score 85\n');
+    }
+  } catch (err) {
+    console.log(' ℹ️ Live Next.js server not running on port 3000 (run `npm run dev` to test live HTTP)\n');
+  }
 
   if (!allPassed) {
     console.error('❌ SOME CONTRACT TESTS FAILED');

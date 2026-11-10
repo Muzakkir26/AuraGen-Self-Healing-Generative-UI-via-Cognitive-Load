@@ -270,14 +270,14 @@ export function TelemetryMonitorHUD({
             {showJsonInspector && (
               <div className="mt-2 space-y-2 max-h-56 overflow-y-auto text-[10px] font-mono rounded-lg bg-black/60 p-2.5 border border-slate-800">
                 <div>
-                  <p className="text-cyan-400 font-semibold mb-1">// Outgoing Telemetry Sample:</p>
+                  <p className="text-cyan-400 font-semibold mb-1">{'// Outgoing Telemetry Sample:'}</p>
                   <pre className="text-slate-300 overflow-x-auto whitespace-pre-wrap">
                     {JSON.stringify(currentPayload, null, 2)}
                   </pre>
                 </div>
                 <div className="pt-2 border-t border-slate-800">
                   <p className="text-emerald-400 font-semibold mb-1">
-                    // Last Backend Response ({lastResponseTime || 'none'}):
+                    {`// Last Backend Response (${lastResponseTime || 'none'}):`}
                   </p>
                   {lastResponse ? (
                     <pre className="text-slate-300 overflow-x-auto whitespace-pre-wrap">
