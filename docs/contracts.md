@@ -83,7 +83,7 @@ Starting weights: rage clicks 0.35, hesitation 0.25, errors 0.25, velocity varia
     ]
   },
   "formState": {
-    "values": { "field-name": "Asha Rao" },
+    "values": { "field-name": "<value typed by user>" },
     "errors": { "field-pan": "pattern" }
   },
   "designSystemVersion": "ds-0.1"
@@ -111,7 +111,7 @@ Starting weights: rage clicks 0.35, hesitation 0.25, errors 0.25, velocity varia
 ## 5. UI push (backend → frontend, WebSocket)
 
 ```json
-{ "type": "ui.generated", "sessionId": "s_8f2c", "componentId": "gen_3a91", "targetFieldId": "field-pan", "compiled": "...", "initialValues": { "field-name": "Asha Rao" } }
+{ "type": "ui.generated", "sessionId": "s_8f2c", "componentId": "gen_3a91", "targetFieldId": "field-pan", "compiled": "...", "initialValues": { "field-name": "<value typed by user>" } }
 ```
 
 ```json
