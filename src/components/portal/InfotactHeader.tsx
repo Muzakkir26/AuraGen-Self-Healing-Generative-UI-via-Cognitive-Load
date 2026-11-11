@@ -27,33 +27,33 @@ export function InfotactHeader({ isDebug = false, connectionStatus = 'connected'
   const badge = getConnectionBadge(connectionStatus);
 
   return (
-    <header className="border-b border-slate-200 bg-white shadow-xs sticky top-0 z-30">
+    <header className="aura-header sticky top-0 z-30">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between">
         {/* Left: Official Infotact Brand */}
         <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-700 via-indigo-600 to-cyan-500 text-white shadow-sm font-black text-lg">
-            IS
+          <div className="aura-brand-mark flex items-center justify-center w-11 h-11 rounded-2xl bg-gradient-to-br from-violet-600 via-indigo-600 to-blue-500 text-white font-black text-lg tracking-tight">
+            A<span className="text-cyan-200">.</span>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-extrabold tracking-tight text-slate-900">
-                INFOTACT SOLUTIONS
+              <h1 className="text-lg font-extrabold tracking-tight text-slate-900">
+                AuraGen <span className="font-semibold text-slate-400">/</span> <span className="text-slate-600">Infotact</span>
               </h1>
-              <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 uppercase">
-                Enterprise Portal
+              <span className="hidden sm:inline-block px-2 py-1 rounded-full text-[9px] font-extrabold tracking-wider bg-violet-50 text-violet-700 border border-violet-100 uppercase">
+                Smart Portal
               </span>
             </div>
             <p className="text-xs text-slate-500 flex items-center gap-1.5">
-              <span>Commercial Financing</span>
+              <span>Adaptive experience</span>
               <span className="text-slate-300">•</span>
-              <span className="text-blue-600 font-medium">Underwriting Gateway</span>
+              <span className="text-indigo-600 font-semibold">Cognitive-aware workflow</span>
             </p>
           </div>
         </div>
 
         {/* Right: Security & (Debug-only) Status Badges */}
         <div className="flex items-center gap-3">
-          <div className="hidden md:flex items-center gap-2 text-xs text-slate-500 bg-slate-50 px-3 py-1.5 rounded-lg border border-slate-200">
+          <div className="hidden md:flex items-center gap-2 text-xs text-slate-600 bg-white/80 px-3.5 py-2 rounded-xl border border-slate-200/80 shadow-sm">
             <ShieldCheck className="w-4 h-4 text-emerald-600" />
             <span>256-bit Encrypted Underwriting</span>
           </div>

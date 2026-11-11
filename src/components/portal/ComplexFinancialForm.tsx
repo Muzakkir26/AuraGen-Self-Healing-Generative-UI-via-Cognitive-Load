@@ -77,21 +77,38 @@ export function ComplexFinancialForm({
 
   return (
     <div className="space-y-6">
-      {/* Neutral Hero Banner */}
-      <div className="bg-gradient-to-r from-blue-900 via-indigo-900 to-slate-900 rounded-2xl p-6 md:p-8 text-white shadow-lg relative overflow-hidden">
-        <div className="relative z-10 max-w-2xl space-y-2">
-          {/* High-contrast WCAG AA badge */}
-          <span className="inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold bg-white/15 text-white border border-white/25 shadow-xs">
-            Commercial Credit Facility • Form CF-889
-          </span>
-          <h2 className="text-xl md:text-2xl font-bold tracking-tight">
-            Institutional Financing & Solvency Assessment
-          </h2>
-          <p className="text-xs md:text-sm text-slate-200 leading-relaxed">
-            Please complete the underwriting disclosures below.
-          </p>
+      {/* AuraGen welcome panel */}
+      <section className="aura-hero rounded-[24px] p-6 md:p-9 text-white">
+        <div className="aura-hero-grid relative z-10">
+          <div className="max-w-2xl space-y-4">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[.16em] text-violet-100">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-300 shadow-[0_0_10px_rgba(110,231,183,.8)]" />
+              Adaptive commercial finance portal
+            </span>
+            <div className="space-y-2">
+              <h2 className="text-2xl md:text-[32px] leading-tight font-bold tracking-tight">
+                Financing, made <span className="text-cyan-200">simpler.</span>
+              </h2>
+              <p className="max-w-xl text-sm md:text-[15px] leading-7 text-indigo-100/90">
+                Share your business details in a guided application designed to respond to your pace and keep your progress in view.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-semibold text-white/90">Form CF-889</span>
+              <span className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-semibold text-white/90">3 guided sections</span>
+              <span className="rounded-lg border border-white/15 bg-white/10 px-3 py-2 text-[11px] font-semibold text-white/90">Secure workflow</span>
+            </div>
+          </div>
+          <div className="aura-hero-stat hidden sm:block">
+            <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-300/15 text-cyan-200">
+              <Lock className="h-5 w-5" />
+            </div>
+            <p className="text-[10px] font-bold uppercase tracking-[.15em] text-indigo-200">Your information</p>
+            <p className="mt-1 text-sm font-semibold text-white">Protected at every step</p>
+            <p className="mt-1 text-[11px] leading-5 text-indigo-100/75">Complete each section at your own pace.</p>
+          </div>
         </div>
-      </div>
+      </section>
 
       {/* Real-time Friction Alert Banner when Cognitive Friction is Detected */}
       {isTriggered && (
@@ -163,9 +180,9 @@ export function ComplexFinancialForm({
             <CardHeader>
               <div className="flex items-center gap-2">
                 <Building2 className="w-4 h-4 text-blue-600" />
-                <h3 className="text-sm font-bold text-slate-900">1. Commercial Entity Profile</h3>
+                <h3 className="text-sm font-bold text-slate-900">Commercial Entity Profile</h3>
               </div>
-              <span className="text-xs text-slate-400 font-medium">Step 1 of 3</span>
+              <span className="aura-step-label">Step 01 / 03</span>
             </CardHeader>
             <CardBody className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="relative">
@@ -228,7 +245,7 @@ export function ComplexFinancialForm({
                       {isTriggered ? 'Friction Detected' : 'Actively Monitored'}
                     </Badge>
                   )}
-                  <span className="text-xs text-slate-400 font-medium">Step 2 of 3</span>
+                  <span className="aura-step-label">Step 02 / 03</span>
                 </div>
               </div>
             </CardHeader>
@@ -363,9 +380,9 @@ export function ComplexFinancialForm({
             <CardHeader>
               <div className="flex items-center gap-2">
                 <FileText className="w-4 h-4 text-indigo-600" />
-                <h3 className="text-sm font-bold text-slate-900">3. Solvency Covenants & Attestation</h3>
+                <h3 className="text-sm font-bold text-slate-900">Solvency Covenants & Attestation</h3>
               </div>
-              <span className="text-xs text-slate-400 font-medium">Step 3 of 3</span>
+              <span className="aura-step-label">Step 03 / 03</span>
             </CardHeader>
             <CardBody className="space-y-4">
               <label
@@ -411,6 +428,9 @@ export function ComplexFinancialForm({
           </Card>
         </form>
       )}
+      <div className="aura-footer flex flex-wrap items-center justify-center gap-x-3 gap-y-1 pt-1 text-[10px] font-medium tracking-wide">
+        <span>© AuraGen</span><span>•</span><span>Adaptive interface experience</span><span>•</span><span>Secure application workflow</span>
+      </div>
     </div>
   );
 }
