@@ -26,12 +26,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     ref
   ) => {
     const baseStyles =
-      'inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]';
+      'inline-flex items-center justify-center font-medium rounded-md transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none active:scale-[0.98]';
 
+    // Updated color palette for a more modern look
     const variants = {
-      primary: 'bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500 shadow-sm',
-      secondary: 'bg-slate-800 text-white hover:bg-slate-900 focus:ring-slate-700 shadow-sm',
-      outline: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus:ring-blue-500',
+      primary: 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white hover:from-indigo-700 hover:to-purple-700 focus:ring-indigo-500 shadow-md',
+      secondary: 'bg-slate-700 text-white hover:bg-slate-800 focus:ring-slate-500 shadow-sm',
+      outline: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 focus:ring-indigo-500',
       ghost: 'bg-transparent text-slate-700 hover:bg-slate-100 focus:ring-slate-400',
       danger: 'bg-red-600 text-white hover:bg-red-700 focus:ring-red-500 shadow-sm',
       success: 'bg-emerald-600 text-white hover:bg-emerald-700 focus:ring-emerald-500 shadow-sm',
@@ -53,14 +54,13 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         {isLoading ? (
           <Loader2 className="w-4 h-4 animate-spin" />
         ) : (
-          leftIcon && <span className="flex-shrink-0">{leftIcon}</span>
+          leftIcon && <span className="flex-shrink-0 mr-1.5">{leftIcon}</span>
         )}
         <span>{children}</span>
-        {!isLoading && rightIcon && <span className="flex-shrink-0">{rightIcon}</span>}
+        {!isLoading && rightIcon && <span className="flex-shrink-0 ml-1.5">{rightIcon}</span>}
       </button>
     );
   }
 );
 
 Button.displayName = 'Button';
-
