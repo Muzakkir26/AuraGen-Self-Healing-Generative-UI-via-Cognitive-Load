@@ -53,6 +53,9 @@ export function ComplexFinancialForm({
   });
 
   const [isSubmitted, setIsSubmitted] = useState<boolean>(false);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [submitError, setSubmitError] = useState<string>('');
+  const [taxIdError, setTaxIdError] = useState<string>('');
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -67,10 +70,19 @@ export function ComplexFinancialForm({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.covenant_compliance) {
-      alert('Please certify the compliance covenant checkbox before submitting.');
+      setSubmitError('Please certify the compliance covenant checkbox before submitting.');
       return;
     }
-    setIsSubmitted(true);
+    if (taxIdError) {
+      setSubmitError('Please correct the EIN field before submitting.');
+      return;
+    }
+    setSubmitError('');
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setIsSubmitted(true);
+    }, 600);
   };
 
   const isFieldStuck = (name: string) => isTriggered && stuckField === name;
@@ -386,11 +398,10 @@ export function ComplexFinancialForm({
             </CardHeader>
             <CardBody className="space-y-4">
               <label
-                className={`flex items-start gap-3 p-3.5 rounded-xl border transition-colors cursor-pointer ${
-                  isFieldStuck('covenant_compliance')
+                className={`flex items-start gap-3 p-3.5 rounded-xl border transition-colors cursor-pointer ${isFieldStuck('covenant_compliance')
                     ? 'border-rose-400 bg-rose-50/40 ring-2 ring-rose-200'
                     : 'border-slate-200 bg-slate-50/50 hover:bg-slate-50'
-                }`}
+                  }`}
                 onFocus={() => onFieldFocus('covenant_compliance', formData.covenant_compliance ? 'true' : 'false')}
                 onBlur={onFieldBlur}
               >

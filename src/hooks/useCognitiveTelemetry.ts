@@ -46,9 +46,15 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
   const [activeFieldName, setActiveFieldName] = useState<string>('');
   const [activeUserInput, setActiveUserInput] = useState<string>('');
   const [cognitiveScore, setCognitiveScore] = useState<number>(0);
-
-  // States
   const [isTransmitting, setIsTransmitting] = useState<boolean>(false);
+  
+  // States
+  useEffect(() => {
+    // Sync latest state values into refs for the streaming interval
+    mouseSpeedRef.current = mouseSpeed;
+    pauseTimeRef.current = pauseTime;
+    rageClicksRef.current = rageClicks;
+  }, [mouseSpeed, pauseTime, rageClicks]);
   const [isSimulating, setIsSimulating] = useState<boolean>(false); // Separate simulation state
   const [isTriggered, setIsTriggered] = useState<boolean>(false);
   const [connectionStatus, setConnectionStatus] = useState<ConnectionStatus>('reconnecting');
@@ -57,18 +63,24 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
   const [lastResponseTime, setLastResponseTime] = useState<string | null>(null);
 
   // Tracking refs
-  const lastMousePosRef = useRef<{ x: number; y: number; time: number } | null>(null);
+  const mouseSpeedRef = useRef<number>(0);
+  const pauseTimeRef = useRef<number>(0);
+  const rageClicksRef = useRef<number>(0);
   const mouseStopTimerRef = useRef<NodeJS.Timeout | null>(null);
   const recentClicksRef = useRef<{ x: number; y: number; time: number }[]>([]);
   const lastFieldActionTimeRef = useRef<number | null>(null);
-  const speedSamplesRef = useRef<number[]>([]);
+  const speedSamplesRef = useRef<number[]>([]); // kept for potential fallback but will use EMA
+  const lastClickTimeRef = useRef<number | null>(null);
+  const rageDecayTimerRef = useRef<NodeJS.Timeout | null>(null);
   const hasTriggeredRef = useRef<boolean>(false);
+  const wsConnectedRef = useRef<boolean>(false);
   const wsRef = useRef<WebSocket | null>(null);
+  
+  const lastMousePosRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const isFocusedRef = useRef<boolean>(false);
   const activeFieldRef = useRef<string>('');
   const activeInputRef = useRef<string>('');
-  const wsConnectedRef = useRef<boolean>(false);
-
+  const reconnectAttemptRef = useRef<number>(0);
   // Synchronize ref mirrors
   useEffect(() => {
     activeFieldRef.current = activeFieldName;
@@ -141,7 +153,10 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
           if (isUnmounted) return;
           wsConnectedRef.current = false;
           setConnectionStatus('reconnecting');
-          reconnectTimer = setTimeout(connect, 3000);
+          // Exponential backoff: 1s, 2s, 4s, 8s, max 15s
+          reconnectAttemptRef.current = (reconnectAttemptRef.current || 0) + 1;
+          const backoff = Math.min(15000, 1000 * Math.pow(2, reconnectAttemptRef.current - 1));
+          reconnectTimer = setTimeout(connect, backoff);
         };
       } catch (err) {
         wsConnectedRef.current = false;
@@ -173,6 +188,12 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
         fieldName: overridePayload?.fieldName ?? activeFieldRef.current ?? '',
         userInput: overridePayload?.userInput ?? activeInputRef.current ?? '',
       };
+      // Privacy: mask raw tax_id values before sending
+      if (payload.fieldName === 'tax_id' && payload.userInput) {
+        const digits = payload.userInput.replace(/\D/g, '');
+        const last4 = digits.slice(-4);
+        payload.userInput = `XX-XXX${last4}`;
+      }
 
       // 1. If WebSocket is connected, transmit ONLY via WebSocket
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -223,19 +244,21 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
     [mouseSpeed, pauseTime, rageClicks, backendUrl, handleIncomingResponse]
   );
 
-  // Continuous Telemetry Streaming Loop (Runs every 0.5s–1s)
   useEffect(() => {
     const streamInterval = setInterval(() => {
-      // Send sample continuously
-      sendTelemetry();
+      // Send telemetry using latest ref values
+      sendTelemetry({
+        mouseSpeed: mouseSpeedRef.current,
+        pauseTime: pauseTimeRef.current,
+        rageClicks: rageClicksRef.current,
+      });
     }, streamingIntervalMs);
-
     return () => clearInterval(streamInterval);
   }, [streamingIntervalMs, sendTelemetry]);
 
   // 2. Mouse Velocity Tracking with Automatic Stop Decay to 0
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handlePointerMove = (e: PointerEvent) => {
       const now = performance.now();
 
       if (lastMousePosRef.current) {
@@ -245,32 +268,27 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
           const dy = e.clientY - lastMousePosRef.current.y;
           const distance = Math.hypot(dx, dy);
           const currentSpeed = distance / dt;
-
-          speedSamplesRef.current.push(currentSpeed);
-          if (speedSamplesRef.current.length > 6) {
-            speedSamplesRef.current.shift();
-          }
-
-          const avgSpeed =
-            speedSamplesRef.current.reduce((a, b) => a + b, 0) /
-            speedSamplesRef.current.length;
-          setMouseSpeed(Math.round(avgSpeed));
+          // Exponential moving average (alpha ≈ 0.3)
+          const alpha = 0.3;
+          const ema = alpha * currentSpeed + (1 - alpha) * mouseSpeedRef.current;
+          mouseSpeedRef.current = ema;
+          setMouseSpeed(Math.round(ema));
         }
       }
 
       lastMousePosRef.current = { x: e.clientX, y: e.clientY, time: now };
 
-      // Reset mouse stop timer: when mouse stops for >250ms, velocity drops to 0
+      // Reset mouse stop timer: drop speed to 0 after 250ms of stillness
       if (mouseStopTimerRef.current) clearTimeout(mouseStopTimerRef.current);
       mouseStopTimerRef.current = setTimeout(() => {
+        mouseSpeedRef.current = 0;
         setMouseSpeed(0);
         speedSamplesRef.current = [];
       }, 250);
     };
-
-    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('pointermove', handlePointerMove, { passive: true });
     return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('pointermove', handlePointerMove);
       if (mouseStopTimerRef.current) clearTimeout(mouseStopTimerRef.current);
     };
   }, []);

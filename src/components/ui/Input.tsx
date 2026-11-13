@@ -75,6 +75,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
               className
             )}
             aria-invalid={Boolean(error)}
+          aria-required={props.required}
             aria-describedby={error ? `${inputId}-error` : helperText ? `${inputId}-desc` : undefined}
             {...props}
           />

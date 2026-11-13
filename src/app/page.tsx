@@ -58,7 +58,7 @@ export default function AuraGenPortalPage() {
     streamingIntervalMs: 800,
     frictionThreshold: 70,
     onTriggerAI: (response) => {
-      setStuckField(response.stuckField || 'annual_income');
+      setStuckField(response.stuckField ?? '');
       setSavedValue(response.savedValue || '');
       if (isDebug) {
         setNotification(
@@ -125,7 +125,7 @@ export default function AuraGenPortalPage() {
                 {connBadge.label}
               </Badge>
 
-              {isTriggered && (
+              {isDebug && isTriggered && (
                 <Badge variant="danger" size="sm" dot>
                   Friction Triggered
                 </Badge>
