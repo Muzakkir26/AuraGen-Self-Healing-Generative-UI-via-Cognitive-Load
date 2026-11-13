@@ -1,29 +1,28 @@
 // server/index.js
-// Purpose: Start the backend server
+// Member 3 (Backend) - Updated Day 5
+// Purpose: Start the server and connect all routes
 
-// Load secret values from .env file
-const dotenv = require("dotenv");
+var dotenv = require("dotenv");
 dotenv.config();
 
-// Import express to create the server
-const express = require("express");
-const app = express();
+var express = require("express");
+var app = express();
 
-// Read the PORT number from .env (or use 3001 as backup)
-const PORT = process.env.PORT || 3001;
+var PORT = process.env.PORT || 3001;
 
 // Allow server to read JSON data from frontend
 app.use(express.json());
 
-// Health check route - to test if server is alive
+// Health check route (Day 2)
 app.get("/health", function (req, res) {
-  res.json({
-    status: "Server is running",
-    port: PORT
-  });
+  res.json({ status: "Server is running", port: PORT });
 });
+
+// Connect the heal-ui route (Day 5)
+var healRoute = require("./routes/healRoute");
+app.use("/api", healRoute);
 
 // Start the server
 app.listen(PORT, function () {
-  console.log("AuraGen Backend is running on port:", PORT);
+  console.log("AuraGen Backend running on port:", PORT);
 });
