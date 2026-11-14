@@ -1,25 +1,36 @@
 {
   "name": "auragen-self-healing-generative-ui-via-cognitive-load",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "mock:ws": "node scripts/mock-ws-server.js",
+    "test:contract": "node test-contract.js",
+    "lint": "next lint"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Muzakkir26/AuraGen-Self-Healing-Generative-UI-via-Cognitive-Load.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/Muzakkir26/AuraGen-Self-Healing-Generative-UI-via-Cognitive-Load/issues"
-  },
-  "homepage": "https://github.com/Muzakkir26/AuraGen-Self-Healing-Generative-UI-via-Cognitive-Load#readme",
   "dependencies": {
+    "clsx": "^2.1.1",
     "dotenv": "^18.0.10",
-    "express": "^5.3.0"
+    "express": "^5.3.0",
+    "lucide-react": "^0.454.0",
+    "next": "^14.2.15",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "tailwind-merge": "^2.5.4"
+  },
+  "devDependencies": {
+    "@types/node": "^20.17.0",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1",
+    "@types/ws": "^8.18.2",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-config-next": "^14.2.15",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.3",
+    "ws": "^8.22.2"
   }
 }
