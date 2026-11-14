@@ -39,7 +39,7 @@ next-env.d.ts
 # testing
 /coverage
 
-# next.js
+# next.js=============
 /.next/
 /out/
 
@@ -63,3 +63,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+node_modules/
+.env
+server/test.js
+server/testAPI.js
