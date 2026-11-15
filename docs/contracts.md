@@ -1,8 +1,12 @@
-# AuraGen Interface Contracts — v0.1 (draft)
+# AuraGen Interface Contracts — v0.2 (draft)
 
 Owner: Member-01 (Team Lead). These are the shared message formats between the frontend, backend, AI layer and tests. **Do not change a contract without telling the members who depend on it.** Every change bumps the version at the top of this file.
 
 All timestamps are milliseconds since epoch. All IDs are strings.
+
+**Changelog**
+- v0.2 (2026-11-15): §6 clarified to match the implemented AST validator (`ai/validator/astValidator.js`): event-handler, computed-access and loop rules, plus extra banned identifiers and attributes. §5 adds how the renderer must build `compiled`. No message shapes changed.
+- v0.1 (2026-11-10): first draft.
 
 ---
 
@@ -130,14 +134,22 @@ Every generated component must:
 - Use **only** these React APIs: `useState`, `useMemo`.
 - Use Tailwind utility classes in `className` strings only (literal strings, no template expressions).
 
+Allowed extras: top-level `const` declarations (e.g. a `STEPS` array), and plain functions/arrow functions inside the component.
+
 The validator **rejects** any code that contains:
 
 - `import` or `require`, or any dynamic `import()`
-- The identifiers `window`, `document`, `globalThis`, `localStorage`, `sessionStorage`, `fetch`, `XMLHttpRequest`, `WebSocket`, `eval`, `Function`, `setTimeout`, `setInterval`, `process`
-- `dangerouslySetInnerHTML`, `ref`, or `on*` handlers other than ones that call `onChange` or `onSubmit`
+- The identifiers `window`, `document`, `globalThis`, `self`, `top`, `parent`, `localStorage`, `sessionStorage`, `indexedDB`, `navigator`, `location`, `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `Worker`, `eval`, `Function`, `setTimeout`, `setInterval`, `requestAnimationFrame`, `queueMicrotask`, `process`, `module`, `exports`, `global`, `Reflect`, `Proxy` (the full list lives in `ai/designSystem.js`)
+- The properties `constructor`, `prototype`, `__proto__` and related prototype-chain escapes
+- The attributes `dangerouslySetInnerHTML`, `ref`, `style`, `href`, `src`, and spread attributes `{...x}`
+- `on*` handlers on raw HTML elements. On approved components, a handler must be a function or a prop reference (e.g. `onClick={() => setStep(1)}`), never a string
 - Raw HTML elements other than `div, span, p, h2, h3, ul, li, label`
-- Member access on anything that isn't a prop or a local variable
+- Member access on anything that isn't a prop or a local variable (so no `Math.max`, `React.useEffect`)
+- Reads with a runtime key (`x[k]`) except on `values` or a local const array/object literal, and calls on such reads
+- Loops (`for`, `while`, `do`), `new`, `this`, `debugger`, `async`/generators, tagged templates
 - Source over 8 KB, or a parse error
+
+**Renderer contract:** `compiled` is a function body. The renderer must build it with `new Function(...RUNTIME_PARAMS, compiled)` using the parameter list exported by `ai/validator/compile.js`, passing `undefined` for every shadowed global.
 
 ## 7. Approved component props (design system ds-0.1)
 
