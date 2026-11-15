@@ -8,7 +8,11 @@
     "start": "next start",
     "mock:ws": "node scripts/mock-ws-server.js",
     "test:contract": "node test-contract.js",
-    "lint": "next lint"
+    "lint": "next lint",
+    "server": "node server/index.js",
+    "ai:install": "npm --prefix ai install",
+    "test:ai": "npm --prefix ai test",
+    "audit:ai": "npm --prefix ai run audit"
   },
   "dependencies": {
     "clsx": "^2.1.1",

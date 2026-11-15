@@ -22,6 +22,10 @@ app.get("/health", function (req, res) {
 var telemetryRoute = require("./routes/healRoute");
 app.use("/api", telemetryRoute);
 
+// AI generation route (Member-01): stuck field -> validated, compiled component
+var generateRoute = require("./routes/generateRoute");
+app.use("/api", generateRoute);
+
 // Global error handler - must be after all routes
 var errorHandler = require("./middleware/errorHandler");
 app.use(errorHandler);
