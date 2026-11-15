@@ -22,7 +22,7 @@ This repository is strictly scoped to **Week 1 only**. All Week 2–4 modules (A
 - **No Simulation Button Hang**: Separate `isSimulating` state ensures continuous background streaming never locks the test buttons into permanent loading spinners.
 
 #### B. User Mode vs. Debug Mode
-- **Normal Mode (Default)**: Normal users see only the clean, accessible Infotact commercial underwriting form. All tracking runs silently in the background with neutral wording (*"Please complete the underwriting disclosures below."*).
+- **Normal Mode (Default)**: Normal users see only the clean, accessible commercial underwriting form. All tracking runs silently in the background with neutral wording (*"Please complete the underwriting disclosures below."*).
 - **Debug Mode (`?debug=true` or `NEXT_PUBLIC_SHOW_DEBUG=true`)**: Exposes developer diagnostics:
   - **Dockable Telemetry HUD**: Collapsed by default, toggleable between `bottom-right` and `bottom-left`.
   - **Single Connection Badge**: Explicitly shows `Connected`, `Reconnecting`, `HTTP Fallback`, or `Offline` without contradictory badges.
@@ -132,7 +132,7 @@ Follow these steps to test all Week 1 requirements:
 
 5. **Normal User Mode**:
    - Navigate to [http://localhost:3000](http://localhost:3000) (without `?debug=true`).
-   - Confirm that no Telemetry HUD, no yellow connection banner, no Contract Inspector tab, and no developer badges are visible. The form displays clean, professional Infotact branding with tracking active silently in the background.
+   - Confirm that no Telemetry HUD, no yellow connection banner, no Contract Inspector tab, and no developer badges are visible. The form displays clean, professional portal branding with tracking active silently in the background.
 
 ---
 
@@ -153,7 +153,7 @@ AuraGen-Self-Healing-Generative-UI-via-Cognitive-Load/
 │   ├── components/
 │   │   ├── portal/
 │   │   │   ├── ComplexFinancialForm.tsx # Clean underwriting form with empty placeholders
-│   │   │   └── InfotactHeader.tsx       # Infotact branding & single connection badge
+│   │   │   └── InfotactHeader.tsx       # Portal branding & single connection badge
 │   │   ├── telemetry/
 │   │   │   └── TelemetryMonitorHUD.tsx  # Dockable HUD (bottom-right/left, collapsed by default)
 │   │   └── ui/

@@ -8,7 +8,7 @@
  *   - "openai": ChatOpenAI (needs OPENAI_API_KEY). The project spec names GPT-4o.
  *   - "mock":   deterministic wizard generator, no network, no key.
  *   - unset:    "openai" when OPENAI_API_KEY is set, otherwise "mock".
- * More providers can be added here once the mentor approves the final choice.
+ * More providers can be added here once the final choice is made.
  */
 
 const { SimpleChatModel } = require("@langchain/core/language_models/chat_models");

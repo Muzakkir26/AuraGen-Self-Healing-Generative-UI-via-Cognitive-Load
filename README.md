@@ -1,6 +1,6 @@
 # AuraGen — Self-Healing Generative UI via Cognitive Load
 
-> Infotact Solutions · Generative AI Internship · Project 1 (5 Nov – 4 Dec 2026)
+> A user interface that notices when people are struggling and rebuilds itself to help them.
 
 ## Problem
 
@@ -48,7 +48,6 @@ The message formats between these parts are defined in [`docs/contracts.md`](doc
 /ai         Prompt builder, Code-Gen Agent, Babel validator, compiler  (Member-01, guide: ai/README.md)
 /tests      Test cases, scenarios, evaluation scripts                  (Member-04)
 /docs       Contracts, frontend guide, progress logs                   (all)
-/records    Plain-language progress record for every branch            (Team Lead)
 ```
 
 ## Branches and team roles

@@ -107,7 +107,7 @@ Starting weights: rage clicks 0.35, hesitation 0.25, errors 0.25, velocity varia
   "source": "export default function PanWizard({ values, onChange, onSubmit }) { ... }",
   "compiled": "/* Babel output, CommonJS-free function body */",
   "validation": { "passed": true, "violations": [] },
-  "meta": { "model": "TBD (mentor approval)", "latencyMs": 1430, "cacheHit": false, "promptVersion": "p-0.1" }
+  "meta": { "model": "TBD", "latencyMs": 1430, "cacheHit": false, "promptVersion": "p-0.1" }
 }
 ```
 
