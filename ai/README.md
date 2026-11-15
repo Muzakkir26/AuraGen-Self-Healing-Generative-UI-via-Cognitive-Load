@@ -8,8 +8,9 @@ Everything between "the backend decided to generate a UI" and "the browser recei
 | AST safety validator (Babel) | `validator/astValidator.js` | Done |
 | Compiler (JSX → runnable function body) | `validator/compile.js` | Done |
 | Reference component / few-shot example | `examples/PanWizard.jsx` | Done |
-| Prompt builder + LangChain Code-Gen Agent | `agent/` | Next |
-| Repair loop (send violations back to the LLM) | `agent/` | Planned |
+| Prompt builder (system + user prompt, few-shot, privacy masking) | `agent/prompt.js` | Done |
+| Repair prompt + code extractor | `agent/prompt.js` | Done |
+| LangChain Code-Gen Agent (LLM call + repair retry) | `agent/` | Next |
 | Cache + token streaming (Week 4 latency goal) | | Planned |
 
 ## Run
