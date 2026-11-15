@@ -1,0 +1,36 @@
+{
+  "timestamp": "2026-11-15T15:18:17.439201",
+  "total_tests": 17,
+  "passed": 17,
+  "elapsed_seconds": 1.8623,
+  "suites": [
+    {
+      "suite": "test_functional_cognitive_engine.py",
+      "status": "PASS",
+      "tests_run": 4,
+      "stdout": "======================================================================\n AURAGEN FUNCTIONAL TESTING: COGNITIVE ENGINE & HEURISTICS\n======================================================================\n  [PASS] Cursor Jitter Entropy: 1.0000\n  [PASS] Composite ECL Index: 0.7250 (Threshold: 0.70)\n  [PASS] Hick-Hyman Decision Friction: 0.9262\n  [PASS] Progressive Disclosure: 18 fields transformed into 3-step Wizard",
+      "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.000s\n\nOK"
+    },
+    {
+      "suite": "test_api_and_schemas.py",
+      "status": "PASS",
+      "tests_run": 6,
+      "stdout": "======================================================================\n AURAGEN API BEHAVIOR & SCHEMA VALIDATION TESTS\n======================================================================\n  [PASS] AST Schema: Correctly caught missing 'id' error\n  [PASS] API Ingest: Returns HTTP 202 Accepted on valid telemetry payload\n  [PASS] API Ingest: Returns HTTP 422 Unprocessable Entity on bad data types\n  [PASS] API Rate Limiting: Returns HTTP 429 after exceeding 60 req/s burst limit\n  [PASS] AST Schema: Correctly rejected unregistered component 'QuantumWidget'\n  [PASS] AST Schema: Valid component tree validated successfully",
+      "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.001s\n\nOK"
+    },
+    {
+      "suite": "test_ui_responsive_and_a11y.py",
+      "status": "PASS",
+      "tests_run": 3,
+      "stdout": "======================================================================\n AURAGEN UI RESPONSIVE & WCAG 2.2 AA ACCESSIBILITY TESTS\n======================================================================\n  [PASS] Invariant I1 (Zero Data Loss): All user draft keystrokes preserved across viewport resize\n  [PASS] Responsive Reflow: Desktop (3 cols) successfully folded into Mobile (1 col)\n  [PASS] Invariant I4 (WCAG 2.2 AA): Contrast 4.48:1 auto-tuned to 7.00:1 (#595959)",
+      "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nOK"
+    },
+    {
+      "suite": "test_failure_and_fallback.py",
+      "status": "PASS",
+      "tests_run": 4,
+      "stdout": "======================================================================\n AURAGEN FAILURE, FALLBACK & RESILIENCE TESTS\n======================================================================\n  [PASS] Cycle Detector: Circular AST reference loop detected without stack overflow crash\n  [PASS] Fallback Resilience: Upstream LLM timeout cleanly caught; heuristic fallback mounted\n  [PASS] Streaming Recovery: Malformed JSON stream chunk caught; prior valid AST preserved\n  [PASS] Offline Resilience: 10 events buffered during network drop and cleanly replayed on reconnect",
+      "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.000s\n\nOK"
+    }
+  ]
+}

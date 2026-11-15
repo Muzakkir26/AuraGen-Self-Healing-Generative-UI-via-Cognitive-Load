@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+    <rect width="800" height="500" fill="#0f172a" rx="12"/>
+    <rect x="30" y="30" width="740" height="60" fill="#1e293b" rx="8" stroke="#ef4444" stroke-width="2"/>
+    <text x="50" y="68" fill="#ef4444" font-family="Arial, sans-serif" font-weight="bold" font-size="20">BASELINE: High Extraneous Cognitive Load (ECL = 0.82)</text>
+    
+    <!-- 18 Monolithic Inputs Clutter -->
+    <g fill="#334155" stroke="#64748b" stroke-width="1">
+        <rect x="50" y="110" width="210" height="40" rx="4"/><rect x="290" y="110" width="210" height="40" rx="4"/><rect x="530" y="110" width="210" height="40" rx="4"/>
+        <rect x="50" y="170" width="210" height="40" rx="4"/><rect x="290" y="170" width="210" height="40" rx="4"/><rect x="530" y="170" width="210" height="40" rx="4"/>
+        <rect x="50" y="230" width="210" height="40" rx="4"/><rect x="290" y="230" width="210" height="40" rx="4"/><rect x="530" y="230" width="210" height="40" rx="4"/>
+        <rect x="50" y="290" width="210" height="40" rx="4"/><rect x="290" y="290" width="210" height="40" rx="4"/><rect x="530" y="290" width="210" height="40" rx="4"/>
+        <rect x="50" y="350" width="210" height="40" rx="4"/><rect x="290" y="350" width="210" height="40" rx="4"/><rect x="530" y="350" width="210" height="40" rx="4"/>
+        <rect x="50" y="410" width="210" height="40" rx="4"/><rect x="290" y="410" width="210" height="40" rx="4"/><rect x="530" y="410" width="210" height="40" rx="4"/>
+    </g>
+    <!-- Chaotic Trajectory overlay -->
+    <path d="M 70 130 Q 150 250 220 180 T 350 320 T 580 140 T 450 380 T 680 430" fill="none" stroke="#f59e0b" stroke-width="3" stroke-dasharray="6,4"/>
+    <circle cx="680" cy="430" r="8" fill="#ef4444"/>
+    <text x="520" y="475" fill="#f59e0b" font-family="Arial, sans-serif" font-size="14">Erratic Motor Cursor Jitter Detected</text>
+</svg>

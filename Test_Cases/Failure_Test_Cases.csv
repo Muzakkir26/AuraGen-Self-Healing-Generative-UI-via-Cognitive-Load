@@ -1,0 +1,6 @@
+Test ID,Subsystem,Scenario Description,Inputs / Preconditions,Expected Result,Priority,Status
+TC-FAIL-001,Fallback Engine,Upstream LLM timeout fallback to Heuristic,LLM hangs for >5000ms,Switches to local heuristic healer; 0 blanking,P0,PASS
+TC-FAIL-002,Fallback Engine,Malformed LLM streaming syntax recovery,Truncated/unparseable JSON stream chunk,"Error boundary catches error, restores prior AST",P0,PASS
+TC-FAIL-003,Telemetry Client,Offline network disconnect & replay,WebSocket drops during active session,"Telemetry queues in buffer, replays on reconnect",P1,PASS
+TC-FAIL-004,AST Parser,Circular component reference cycle detection,Node A embeds Node B which embeds Node A,"Cycle detector catches loop, caps depth at 8",P0,PASS
+TC-FAIL-005,State Reconciler,In-flight state race during async LLM patch,User types keystrokes while stream arrives,3-way merge preserves in-flight keystrokes (I1),P0,PASS
