@@ -1,0 +1,35 @@
+name: AuraGen QA & Invariant Test Suite
+
+on:
+  push:
+    branches: [ main, Member-04 ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  qa-evaluation:
+    name: Execute 16-Step Cross-Team Integration Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run AuraGen Master QA Suite
+        run: |
+          python run_auragen_suite.py
+
+      - name: Upload Test Execution Evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auragen-qa-evidence
+          path: |
+            Test_Logs/
+            Performance_Evaluation/
+            Final_Report/
