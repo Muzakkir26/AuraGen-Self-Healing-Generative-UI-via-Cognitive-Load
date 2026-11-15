@@ -15,7 +15,7 @@ Last updated: **2026-11-15** (end of Week 2, day 4).
 
 | Member | What's done so far | Days with commits (Nov 9–15) | Merged into `main`? | Health |
 |---|---|---|---|---|
-| Member-01 | Contracts and README; Babel safety validator + compiler; prompt builder (29 tests) | 3 (Nov 9, 10, 15) | Not yet | 🟡 Strong code, needs daily commits |
+| Member-01 | Contracts; Babel validator + compiler; prompt builder; LangChain Code-Gen Agent + mock LLM; cache; `/api/generate`; audit (44 tests) | 3 (Nov 9, 10, 15) | Not yet (PR ready) | 🟡 AI layer complete for W1–W3. Needs daily commits |
 | Member-02 | Next.js app, financial form, telemetry hook, UI kit, live score HUD | 5 (Nov 10–14) | Yes | 🟢 On track |
 | Member-03 | Express server, score calculation, input validation, error handler, logger | 7 (Nov 9–15) | Yes | 🟢 On track |
 | Member-04 | Test plan, test cases, bug tracker, simulated benchmarks, draft final report | 1 (Nov 14) | Not yet | 🔴 Needs rework (see record) |
@@ -24,13 +24,14 @@ Last updated: **2026-11-15** (end of Week 2, day 4).
 
 | Week | Plan (AI & Backend) | Plan (Frontend) | Reality |
 |---|---|---|---|
-| W1 (Nov 5–11) | LangChain pipeline fed with the component library | Telemetry hook streaming over WebSockets | Telemetry hook ✅. Prompt builder ✅ (Nov 15, late). LangChain call ⏳ |
+| W1 (Nov 5–11) | LangChain pipeline fed with the component library | Telemetry hook streaming over WebSockets | Telemetry hook ✅. LangChain pipeline ✅ (Nov 15, late) |
 | W2 (Nov 12–18) | Babel layer catching bad or malicious code | Shell that compiles a code string in the browser and renders it | Babel validator + compiler ✅. Browser rendering shell ⏳ |
-| Mid review (Nov 20–27) | | | Needs: one end-to-end demo (struggle → score → LLM → validated component on screen) |
+| W3 (Nov 19–25) | Generation audit | Cognitive Load Score spikes during simulated confusion | Audit tool ✅ (mock run). Real-model run waits for the key |
+| Mid review (Nov 20–27) | | | Needs: one end-to-end demo. Backend → AI now works (`POST /api/generate`). **Missing: the score ≥ 70 call and the browser renderer** |
 
 ## Top 5 team issues (Team Lead view)
 
-1. **No end-to-end flow yet.** The pieces exist separately: the score works and the validator works, but nothing yet connects "score ≥ 70" to "generate a component" to "show it in the browser".
+1. **End-to-end flow is two links short.** Score ✅ → *(missing: backend calls `/api/generate` when score ≥ 70)* → AI generates + validates ✅ → *(missing: browser renderer shows the component)*.
 2. **Two scoring implementations.** The frontend (`src/lib/scoring.ts`, Next.js API route) and the backend (`server/telemetryService.js`, Express) each compute the score, with different weights. One must be chosen.
 3. **Contract drift.** The running code uses a simple REST payload (`mouseSpeed, pauseTime, rageClicks, fieldName, userInput`), not the WebSocket messages in `docs/contracts.md`. Pick one and update the contract.
 4. **Testing is disconnected from the real code.** Member-04's tests check stand-alone Python mock classes, and the benchmark numbers are randomly generated. See [member-04.md](member-04.md).

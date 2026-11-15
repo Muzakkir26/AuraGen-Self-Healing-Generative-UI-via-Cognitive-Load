@@ -1,10 +1,11 @@
-# AuraGen Interface Contracts — v0.2 (draft)
+# AuraGen Interface Contracts — v0.3 (draft)
 
 Owner: Member-01 (Team Lead). These are the shared message formats between the frontend, backend, AI layer and tests. **Do not change a contract without telling the members who depend on it.** Every change bumps the version at the top of this file.
 
 All timestamps are milliseconds since epoch. All IDs are strings.
 
 **Changelog**
+- v0.3 (2026-11-15): new §8 `POST /api/generate` (HTTP form of §3 → §4 + §5). §4 `meta` gains `provider`, `attempts` and `error`. No existing shapes changed.
 - v0.2 (2026-11-15): §6 clarified to match the implemented AST validator (`ai/validator/astValidator.js`): event-handler, computed-access and loop rules, plus extra banned identifiers and attributes. §5 adds how the renderer must build `compiled`. No message shapes changed.
 - v0.1 (2026-11-10): first draft.
 
@@ -168,3 +169,27 @@ The validator **rejects** any code that contains:
 | `Card` / `Stack` | `className?`, `children` |
 
 Member-02 builds these in `/frontend`. Member-01 feeds the same list to the LLM prompt. Member-03 and Member-04 validate and test against it.
+
+## 8. Generate endpoint (frontend or backend → AI layer, HTTP)
+
+`POST /api/generate` on the Express server. The body is the §3 generation request. The reply is:
+
+```json
+{
+  "success": true,
+  "result": { "status": "ok", "componentId": "gen_3a91", "componentName": "PanNumberWizard", "source": "...", "compiled": "...",
+              "validation": { "passed": true, "violations": [] },
+              "meta": { "model": "gpt-4o", "provider": "openai", "latencyMs": 1430, "cacheHit": false, "promptVersion": "p-0.1", "attempts": 1 } },
+  "ui": { "type": "ui.generated", "sessionId": "s_8f2c", "componentId": "gen_3a91", "targetFieldId": "field-pan", "compiled": "...", "initialValues": {} }
+}
+```
+
+| HTTP | When | `ui` |
+|---|---|---|
+| 200 | `result.status` is `ok` (`success: true`) or `rejected` / `error` (`success: false`) | `ui.generated` or `ui.fallback` (§5) |
+| 400 | Missing `sessionId` / `frictionPoint.fieldId`, or the field is not in `formSchema.fields` | none |
+| 429 | Same session + field generated less than `GENERATION_COOLDOWN_MS` ago | `ui.fallback` with `reason: "cooldown"` |
+
+The frontend can render `ui` directly: on `ui.generated` load `compiled` (§6 renderer contract), on `ui.fallback` show the static wizard.
+`meta.attempts` is 2 when the first answer was rejected and repaired. `meta.error` starts with `timeout`, `llm-failure` or `bad-request`.
+

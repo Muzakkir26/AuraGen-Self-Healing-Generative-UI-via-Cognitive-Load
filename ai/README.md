@@ -10,8 +10,13 @@ Everything between "the backend decided to generate a UI" and "the browser recei
 | Reference component / few-shot example | `examples/PanWizard.jsx` | Done |
 | Prompt builder (system + user prompt, few-shot, privacy masking) | `agent/prompt.js` | Done |
 | Repair prompt + code extractor | `agent/prompt.js` | Done |
-| LangChain Code-Gen Agent (LLM call + repair retry) | `agent/` | Next |
-| Cache + token streaming (Week 4 latency goal) | | Planned |
+| LangChain Code-Gen Agent (LLM call → validate → repair retry → §4 result) | `agent/codeGenAgent.js` | Done |
+| Chat model factory: OpenAI (GPT-4o) or mock, from env | `agent/llm.js` | Done |
+| Mock LLM + template wizard generator (no API key needed) | `agent/llm.js`, `agent/templates.js` | Done |
+| Generation cache (LRU + TTL, shared safely across users) | `agent/cache.js` | Done |
+| Backend route `POST /api/generate` | `../server/routes/generateRoute.js` | Done |
+| Generation audit (pass rate, latency, violations) | `audit/runAudit.js` | Done |
+| Token streaming to the frontend | | Planned (W4) |
 
 ## Run
 
@@ -21,7 +26,27 @@ npm install
 npm test
 ```
 
-## Use (backend, Member-03)
+## Generate a component
+
+```js
+const { createAgentFromEnv, toUiMessage } = require("../ai");
+const agent = createAgentFromEnv();          // LLM_PROVIDER=openai|mock; mock when no key
+const result = await agent.generate(request); // contracts §3 in, §4 out; never throws
+ws.send(JSON.stringify(toUiMessage(request, result))); // §5 ui.generated / ui.fallback
+```
+
+Or over HTTP: `POST /api/generate` (contracts §8), already mounted in `server/index.js`.
+
+## Audit
+
+```bash
+npm run audit                      # mock: tests the pipeline
+LLM_PROVIDER=openai OPENAI_API_KEY=... npm run audit -- --runs 5   # real model numbers
+```
+
+Reports go to `reports/audit-<provider>-<date>.{json,md}`. Mock reports say so at the top. Never present them as model quality.
+
+## Lower-level use (validator only)
 
 ```js
 const { compileComponent } = require("../ai");
