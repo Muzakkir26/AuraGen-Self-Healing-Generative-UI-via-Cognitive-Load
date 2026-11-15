@@ -1,10 +1,13 @@
 # Dependencies
 node_modules/
+/.pnp
+.pnp.js
 
 # Secrets
 .env
 .env.*
 !.env.example
+*.pem
 
 # Build output
 .next/
@@ -12,8 +15,14 @@ dist/
 build/
 out/
 coverage/
+*.tsbuildinfo
+next-env.d.ts
 
 # Logs and OS files
 *.log
 .DS_Store
 Thumbs.db
+
+# Local scratch files
+server/test.js
+server/testAPI.js

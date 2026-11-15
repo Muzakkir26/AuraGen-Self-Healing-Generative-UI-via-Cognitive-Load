@@ -42,14 +42,13 @@ The message formats between these parts are defined in [`docs/contracts.md`](doc
 
 ## Repository layout
 
-Each member works inside their own folder so that branches merge into `main` without conflicts.
-
 ```
-/frontend   Next.js app, telemetry hook, renderer       (Member-02)
-/backend    Express + WebSocket server, scoring, API    (Member-03)
-/ai         LangChain pipeline, prompts, Babel validator (Member-01)
-/tests      Test cases, scenarios, evaluation scripts   (Member-04)
-/docs       Contracts, architecture, reports            (all)
+/src        Next.js app: financial form, telemetry hook, UI kit, HUD   (Member-02, guide: docs/frontend.md)
+/server     Express API: scoring, validation, /api/generate            (Member-03, AI route: Member-01)
+/ai         Prompt builder, Code-Gen Agent, Babel validator, compiler  (Member-01, guide: ai/README.md)
+/tests      Test cases, scenarios, evaluation scripts                  (Member-04)
+/docs       Contracts, frontend guide, progress logs                   (all)
+/records    Plain-language progress record for every branch            (Team Lead)
 ```
 
 ## Branches and team roles
@@ -70,7 +69,16 @@ git clone https://github.com/Muzakkir26/AuraGen-Self-Healing-Generative-UI-via-C
 
 ## Setup
 
-Setup steps will be added as each module lands. Secrets live in a local `.env` file, which is never committed. Copy [`.env.example`](.env.example) to start.
+```bash
+npm install                 # frontend + backend
+cd ai && npm install && cd ..   # AI layer
+cp .env.example .env        # fill in values; leave OPENAI_API_KEY empty to use the mock LLM
+npm run dev                 # Next.js frontend on :3000
+node server/index.js        # backend API
+npm run test:ai             # AI layer tests
+```
+
+Frontend details and manual test steps are in [`docs/frontend.md`](docs/frontend.md). Secrets live in a local `.env` file, which is never committed.
 
 ## Security principles
 
