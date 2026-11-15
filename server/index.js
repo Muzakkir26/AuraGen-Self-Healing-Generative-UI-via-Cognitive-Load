@@ -9,6 +9,10 @@ var PORT = process.env.PORT || 3001;
 // Parse incoming JSON requests
 app.use(express.json());
 
+// Request logger middleware
+var requestLogger = require("./middleware/logger");
+app.use(requestLogger);
+
 // Health check
 app.get("/health", function (req, res) {
   res.json({ status: "Server is running", port: PORT });
