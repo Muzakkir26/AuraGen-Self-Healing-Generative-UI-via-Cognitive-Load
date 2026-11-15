@@ -1,0 +1,19 @@
+{
+  "name": "auragen-ai",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AuraGen AI layer: design system spec, AST safety validator and compiler for LLM-generated React components",
+  "main": "index.js",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@babel/core": "^7.29.13",
+    "@babel/parser": "^7.29.14",
+    "@babel/preset-react": "^7.29.7",
+    "@babel/traverse": "^7.29.14"
+  }
+}
