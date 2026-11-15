@@ -11,6 +11,15 @@ Last updated: **2026-11-15** (end of Week 2, day 4).
 | [member-03.md](member-03.md) | `Member-03` | Backend/API: server, scoring, validation |
 | [member-04.md](member-04.md) | `Member-04` | Testing, evaluation, documentation, report |
 
+## PDF reports (with viva questions)
+
+| PDF | Contents |
+|---|---|
+| [00_Team_Overview.pdf](pdf/00_Team_Overview.pdf) | Project summary, team completion, plan vs reality, end-to-end status, team viva questions |
+| [Member-01_Report.pdf](pdf/Member-01_Report.pdf) … [Member-04_Report.pdf](pdf/Member-04_Report.pdf) | Completion %, what was built, how it works, timeline, gaps, and viva questions with model answers |
+
+Rebuild after updating the data in the script: `pip install reportlab` then `python records/pdf/build_reports.py`.
+
 ## Team at a glance
 
 | Member | What's done so far | Days with commits (Nov 9–15) | Merged into `main`? | Health |
