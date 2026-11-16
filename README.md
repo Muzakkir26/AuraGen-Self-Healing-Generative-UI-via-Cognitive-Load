@@ -44,7 +44,7 @@ The message formats between these parts are defined in [`docs/contracts.md`](doc
 
 ```
 /src        Next.js app: financial form, telemetry hook, UI kit, HUD   (Member-02, guide: docs/frontend.md)
-/server     Express API: scoring, validation, /api/generate            (Member-03, AI route: Member-01)
+/server     Express API: scoring, validation, /api/generate, /api/heal-ui (Member-03, AI routes: Member-01)
 /ai         Prompt builder, Code-Gen Agent, Babel validator, compiler  (Member-01, guide: ai/README.md)
 /tests      Test cases, scenarios, evaluation scripts                  (Member-04)
 /docs       Contracts, frontend guide, progress logs                   (all)
@@ -75,6 +75,7 @@ cp .env.example .env        # fill in values; leave OPENAI_API_KEY empty to use 
 npm run dev                 # Next.js frontend on :3000
 node server/index.js        # backend API
 npm run test:ai             # AI layer tests
+npm run test:server         # backend trigger tests (/api/heal-ui, /api/generate)
 ```
 
 Frontend details and manual test steps are in [`docs/frontend.md`](docs/frontend.md). Secrets live in a local `.env` file, which is never committed.

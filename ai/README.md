@@ -15,6 +15,7 @@ Everything between "the backend decided to generate a UI" and "the browser recei
 | Mock LLM + template wizard generator (no API key needed) | `agent/llm.js`, `agent/templates.js` | Done |
 | Generation cache (LRU + TTL, shared safely across users) | `agent/cache.js` | Done |
 | Backend route `POST /api/generate` | `../server/routes/generateRoute.js` | Done |
+| Trigger `POST /api/heal-ui` (score ≥ 70 → generate) | `../server/routes/healUiRoute.js` | Done |
 | Generation audit (pass rate, latency, violations) | `audit/runAudit.js` | Done |
 | Token streaming to the frontend | | Planned (W4) |
 

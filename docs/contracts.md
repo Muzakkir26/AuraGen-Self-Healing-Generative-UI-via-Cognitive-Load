@@ -1,10 +1,11 @@
-# AuraGen Interface Contracts — v0.3 (draft)
+# AuraGen Interface Contracts — v0.4 (draft)
 
 Owner: Member-01 (Team Lead). These are the shared message formats between the frontend, backend, AI layer and tests. **Do not change a contract without telling the members who depend on it.** Every change bumps the version at the top of this file.
 
 All timestamps are milliseconds since epoch. All IDs are strings.
 
 **Changelog**
+- v0.4 (2026-11-16): new §9 `POST /api/heal-ui`, the one-call trigger that the frontend already uses: REST telemetry in, score + `ui` message out. Generation starts at `LOAD_HIGH_THRESHOLD` (70). No existing shapes changed.
 - v0.3 (2026-11-15): new §8 `POST /api/generate` (HTTP form of §3 → §4 + §5). §4 `meta` gains `provider`, `attempts` and `error`. No existing shapes changed.
 - v0.2 (2026-11-15): §6 clarified to match the implemented AST validator (`ai/validator/astValidator.js`): event-handler, computed-access and loop rules, plus extra banned identifiers and attributes. §5 adds how the renderer must build `compiled`. No message shapes changed.
 - v0.1 (2026-11-10): first draft.
@@ -193,3 +194,34 @@ Member-02 builds these in `/frontend`. Member-01 feeds the same list to the LLM 
 The frontend can render `ui` directly: on `ui.generated` load `compiled` (§6 renderer contract), on `ui.fallback` show the static wizard.
 `meta.attempts` is 2 when the first answer was rejected and repaired. `meta.error` starts with `timeout`, `llm-failure` or `bad-request`.
 
+## 9. Heal-UI trigger (frontend → backend, HTTP)
+
+`POST /api/heal-ui` on the Express server. This is the end-to-end trigger: the backend scores the telemetry (`server/telemetryService.js`) and, when the score is at or above `LOAD_HIGH_THRESHOLD` (default 70), builds a §3 request from the server-side form schema (`server/forms/financialForm.js`) and runs the Code-Gen Agent in the same call.
+
+Body (the REST telemetry the frontend sends today; `sessionId` is optional, default `"anonymous"`):
+
+```json
+{ "sessionId": "s_8f2c", "mouseSpeed": 120, "pauseTime": 5, "rageClicks": 4, "fieldName": "annual_income", "userInput": "<value typed by user>" }
+```
+
+Reply (the `/api/telemetry` fields plus `ui` and `generation`):
+
+```json
+{
+  "success": true, "score": 100, "triggerAI": true, "stuckField": "annual_income", "savedValue": "<value typed by user>",
+  "ui": { "type": "ui.generated", "sessionId": "s_8f2c", "componentId": "gen_3a91", "targetFieldId": "annual_income", "compiled": "...", "initialValues": { "annual_income": "<value typed by user>" } },
+  "generation": { "status": "ok", "componentName": "AnnualIncomeWizard", "violations": [], "meta": { "latencyMs": 12, "cacheHit": false, "attempts": 1 } }
+}
+```
+
+| Case | HTTP | `ui` |
+|---|---|---|
+| Score below the threshold | 200 | `null` (no generation) |
+| Score at/above the threshold, generation ok | 200 | `ui.generated` |
+| Generation rejected or failed | 200 | `ui.fallback`, `reason` = `rejected` / `error` (cooldown not started, so the next trigger retries) |
+| Same session + field generated less than `GENERATION_COOLDOWN_MS` ago (shared with §8) | 200 | `ui.fallback`, `reason: "cooldown"` |
+| `fieldName` is not in the form schema | 200 | `ui.fallback`, `reason: "unknown-field"` |
+| Invalid telemetry | 400 | none |
+
+`userInput` only reaches the browser again through `ui.initialValues`. The LLM prompt only says whether the field is filled or empty.
+Cross-origin calls from the Next.js dev server are allowed for the origins in `CORS_ORIGIN` (default `http://localhost:3000`).
