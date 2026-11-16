@@ -1,0 +1,71 @@
+
+name: AuraGen QA & Invariant Test Suite
+
+on:
+  push:
+    branches:
+      - main
+      - Member-01
+      - Member-02
+      - Member-03
+      - Member-04
+
+  pull_request:
+    branches:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  qa-evaluation:
+    name: Execute 16-Step Cross-Team Integration Suite
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout latest repository code
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      # 2. Configure Python environment
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # 3. Install dependencies if requirements.txt exists
+      - name: Install Project Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      # 4. Verify QA test script
+      - name: Verify QA Suite
+        run: |
+          if [ ! -f run_auragen_suite.py ]; then
+            echo "ERROR: run_auragen_suite.py not found!"
+            exit 1
+          fi
+
+      # 5. Execute Master QA Suite
+      - name: Run AuraGen Master QA Suite
+        run: |
+          python run_auragen_suite.py
+
+      # 6. Upload test execution evidence
+      - name: Upload Test Execution Evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: auragen-qa-evidence
+          path: |
+            Test_Logs/
+            Performance_Evaluation/
+            Final_Report/
+          if-no-files-found: warn
+          retention-days: 30
