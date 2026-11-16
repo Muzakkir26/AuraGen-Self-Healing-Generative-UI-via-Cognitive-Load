@@ -12,6 +12,7 @@
     "server": "node server/index.js",
     "ai:install": "npm --prefix ai install",
     "test:ai": "npm --prefix ai test",
+    "test:server": "node --test \"server/test/*.test.js\"",
     "audit:ai": "npm --prefix ai run audit"
   },
   "dependencies": {

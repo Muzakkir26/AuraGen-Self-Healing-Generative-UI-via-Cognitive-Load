@@ -9,32 +9,10 @@
 // Without OPENAI_API_KEY it runs the mock LLM, so the full flow can be demoed with no key.
 
 var express = require("express");
-var ai = require("../../ai");
+var agentService = require("../ai/agentService");
 
 var router = express.Router();
-var COOLDOWN_MS = Number(process.env.GENERATION_COOLDOWN_MS || 30000);
-
-// Created on first use so a config error (e.g. provider=openai with no key) shows up in the response, not at boot.
-var agent = null;
-function getAgent() {
-  if (!agent) {
-    agent = ai.createAgentFromEnv(process.env);
-    console.log("[AI] Code-Gen Agent ready. Provider:", agent.provider, "| Model:", agent.modelName);
-  }
-  return agent;
-}
-
-// At most one generation per session + field every COOLDOWN_MS (contracts §2 trigger rule).
-var lastGeneration = new Map();
-function onCooldown(key, now) {
-  var last = lastGeneration.get(key);
-  if (last !== undefined && now - last < COOLDOWN_MS) return true;
-  lastGeneration.set(key, now);
-  if (lastGeneration.size > 5000) {
-    lastGeneration.forEach(function (t, k) { if (now - t >= COOLDOWN_MS) lastGeneration.delete(k); });
-  }
-  return false;
-}
+var cooldown = agentService.cooldown;
 
 router.post("/generate", async function (req, res, next) {
   try {
@@ -45,24 +23,24 @@ router.post("/generate", async function (req, res, next) {
     }
 
     var key = body.sessionId + "|" + fieldId;
-    if (onCooldown(key, Date.now())) {
+    if (cooldown.check(key, Date.now())) {
       return res.status(429).json({
         success: false,
-        error: "A component was generated for this field less than " + COOLDOWN_MS / 1000 + " s ago",
+        error: "A component was generated for this field less than " + cooldown.ms / 1000 + " s ago",
         ui: { type: "ui.fallback", sessionId: body.sessionId, targetFieldId: fieldId, reason: "cooldown" },
       });
     }
 
-    var result = await getAgent().generate(body);
+    var result = await agentService.getAgent().generate(body);
     if (result.status === "error" && /^bad-request/.test(result.meta.error || "")) {
-      lastGeneration.delete(key);
+      cooldown.release(key);
       return res.status(400).json({ success: false, error: result.meta.error });
     }
 
     console.log("[AI] Field:", fieldId, "| Status:", result.status, "| Attempts:", result.meta.attempts,
       "| Cache:", result.meta.cacheHit, "| Latency:", result.meta.latencyMs + "ms");
 
-    return res.status(200).json({ success: result.status === "ok", result: result, ui: ai.toUiMessage(body, result) });
+    return res.status(200).json({ success: result.status === "ok", result: result, ui: agentService.toUiMessage(body, result) });
   } catch (err) {
     next(err);
   }
