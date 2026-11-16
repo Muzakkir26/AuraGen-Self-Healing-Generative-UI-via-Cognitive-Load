@@ -73,7 +73,7 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
       })
       .catch((err) => console.error('Error sending confusion data', err));
   }, []);
-  
+
   // States
   useEffect(() => {
     // Sync latest state values into refs for the streaming interval
@@ -101,7 +101,7 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
   const hasTriggeredRef = useRef<boolean>(false);
   const wsConnectedRef = useRef<boolean>(false);
   const wsRef = useRef<WebSocket | null>(null);
-  
+
   const lastMousePosRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const isFocusedRef = useRef<boolean>(false);
   const activeFieldRef = useRef<string>('');
