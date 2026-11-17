@@ -1,43 +1,46 @@
-Timestamp: 2026-11-15T15:18:17.439201
-[PASS] test_functional_cognitive_engine.py (4 tests)
-======================================================================
- AURAGEN FUNCTIONAL TESTING: COGNITIVE ENGINE & HEURISTICS
-======================================================================
-  [PASS] Cursor Jitter Entropy: 1.0000
-  [PASS] Composite ECL Index: 0.7250 (Threshold: 0.70)
-  [PASS] Hick-Hyman Decision Friction: 0.9262
-  [PASS] Progressive Disclosure: 18 fields transformed into 3-step Wizard
+AURAGEN TEST EXECUTION REPORT
+============================================================
+Timestamp: 2026-11-17T16:39:13.360165+05:30
+Overall Status: PASS
+Total Suites: 4
+Passed: 4
+Failed: 0
+Errors: 0
+Known Total Tests: 17
+Suite Pass Rate: 100.0%
+Execution Time: 1.791 seconds
+
+INDIVIDUAL TEST RESULTS
+============================================================
+
+Test: test_functional_cognitive_engine.py
+Timestamp: 2026-11-17T16:39:13.361783+05:30
+Status: PASS
+Tests Run: 4
+Failures: 0
+Errors: 0
 ------------------------------------------------------------
-[PASS] test_api_and_schemas.py (6 tests)
-======================================================================
- AURAGEN API BEHAVIOR & SCHEMA VALIDATION TESTS
-======================================================================
-  [PASS] AST Schema: Correctly caught missing 'id' error
-  [PASS] API Ingest: Returns HTTP 202 Accepted on valid telemetry payload
-  [PASS] API Ingest: Returns HTTP 422 Unprocessable Entity on bad data types
-  [PASS] API Rate Limiting: Returns HTTP 429 after exceeding 60 req/s burst limit
-  [PASS] AST Schema: Correctly rejected unregistered component 'QuantumWidget'
-  [PASS] AST Schema: Valid component tree validated successfully
+
+Test: test_api_and_schemas.py
+Timestamp: 2026-11-17T16:39:14.009919+05:30
+Status: PASS
+Tests Run: 6
+Failures: 0
+Errors: 0
 ------------------------------------------------------------
-[PASS] test_ui_responsive_and_a11y.py (3 tests)
-======================================================================
- AURAGEN UI RESPONSIVE & WCAG 2.2 AA ACCESSIBILITY TESTS
-======================================================================
-  [PASS] Invariant I1 (Zero Data Loss): All user draft keystrokes preserved across viewport resize
-  [PASS] Responsive Reflow: Desktop (3 cols) successfully folded into Mobile (1 col)
-  [PASS] Invariant I4 (WCAG 2.2 AA): Contrast 4.48:1 auto-tuned to 7.00:1 (#595959)
+
+Test: test_ui_responsive_and_a11y.py
+Timestamp: 2026-11-17T16:39:14.314640+05:30
+Status: PASS
+Tests Run: 3
+Failures: 0
+Errors: 0
 ------------------------------------------------------------
-[PASS] test_failure_and_fallback.py (4 tests)
-======================================================================
- AURAGEN FAILURE, FALLBACK & RESILIENCE TESTS
-======================================================================
-  [PASS] Cycle Detector: Circular AST reference loop detected without stack overflow crash
-  [PASS] Fallback Resilience: Upstream LLM timeout cleanly caught; heuristic fallback mounted
-  [PASS] Streaming Recovery: Malformed JSON stream chunk caught; prior valid AST preserved
-  [PASS] Offline Resilience: 10 events buffered during network drop and cleanly replayed on reconnect
+
+Test: test_failure_and_fallback.py
+Timestamp: 2026-11-17T16:39:14.603062+05:30
+Status: PASS
+Tests Run: 4
+Failures: 0
+Errors: 0
 ------------------------------------------------------------
-===========================================================================
- EXECUTION SUMMARY: 17/17 Tests Passed (100% Success) in 1.8623s
- Invariant Compliance: I1 (Data Loss=0%), I2 (ECL Reduction), I3 (Anti-Oscillation),
-                       I4 (WCAG 2.2 AA), I5 (Real-Time Latency Budget)
-===========================================================================
