@@ -1,4 +1,4 @@
-// File: C:\Users\jahna\OneDrive\Documents\AuraGen-Self-Healing-Generative-UI-via-Cognitive-Load\src\app\page.tsx
+// File: C:\dev\AuraGen-team\src\app\page.tsx
 import * as entry from '../../../src/app/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

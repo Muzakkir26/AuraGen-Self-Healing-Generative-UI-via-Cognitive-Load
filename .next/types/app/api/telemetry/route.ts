@@ -1,4 +1,4 @@
-// File: C:\Users\jahna\OneDrive\Documents\AuraGen-Self-Healing-Generative-UI-via-Cognitive-Load\src\app\api\telemetry\route.ts
+// File: C:\dev\AuraGen-team\src\app\api\telemetry\route.ts
 import * as entry from '../../../../../src/app/api/telemetry/route.js'
 import type { NextRequest } from 'next/server.js'
 
