@@ -72,12 +72,19 @@ export const DynamicRenderer: React.FC<DynamicRendererProps> = ({ code, mock = f
     }
 
     try {
+      // Transform code using React and env presets (CommonJS)
       const transformed = Babel.transform(code, {
-        presets: ['react'],
-        // Restrict to a safe environment – no plugins that allow eval or import
+        presets: [
+        ['react'],
+        ['env', { modules: 'commonjs' }]
+      ],
+        // No additional plugins needed; using env preset with CommonJS modules
       }).code;
-      // Create a function with a limited scope (only React is provided)
-      const Component = new Function('React', `return ${transformed}`)(React);
+      // Prepare a simple CommonJS environment.
+      const module = { exports: {} } as any;
+      const func = new Function('React', 'module', 'exports', transformed);
+      func(React, module, module.exports);
+      const Component = module.exports.default || module.exports;
       setCompiledComponent(<Component />);
     } catch (err) {
       console.error('DynamicRenderer compilation error:', err);

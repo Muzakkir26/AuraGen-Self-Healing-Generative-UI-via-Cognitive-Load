@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest"
   },
   "dependencies": {
     "@babel/standalone": "^8.1.2",
@@ -22,6 +23,16 @@
   "devDependencies": {
     "@types/node": "^20.14.10",
     "@types/react": "^18.3.3",
+    "@types/jest": "^29.5.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "@testing-library/react": "^14.0.0",
+    "@testing-library/jest-dom": "^6.4.0",
+    "@types/testing-library__jest-dom": "^6.0.0",
+    "@babel/plugin-transform-modules-commonjs": "^7.25.2",
+    "@babel/preset-env": "^7.25.2",
+    "@babel/preset-react": "^7.25.2",
+    "@babel/preset-typescript": "^7.25.2",
     "typescript": "^5.5.4"
   }
 }

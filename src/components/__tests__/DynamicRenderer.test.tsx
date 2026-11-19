@@ -1,7 +1,7 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { DynamicRenderer } from '../../components/DynamicRenderer';
+const React = require('react');
+const { render, screen, fireEvent } = require('@testing-library/react');
+require('@testing-library/jest-dom');
+const { DynamicRenderer } = require('../../components/DynamicRenderer');
 
 // Mock the cognitive load hook
 jest.mock('@/hooks/useCognitiveTelemetry', () => ({
