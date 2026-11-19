@@ -7,9 +7,14 @@
 //
 // Body:  { mouseSpeed, pauseTime, rageClicks, fieldName, userInput?, sessionId? }
 // Reply: { success, score, triggerAI, stuckField, savedValue, ui, generation }
+//
+// The telemetry fields are checked with the same zod schemas as /api/telemetry
+// (server/schemas), so both routes accept and return the same shapes.
 
 var express = require("express");
 var telemetry = require("../telemetryService");
+var { validateTelemetryRequest } = require("../schemas/requestSchema");
+var { validateTelemetryResponse } = require("../schemas/responseSchema");
 var agentService = require("../ai/agentService");
 var financialForm = require("../forms/financialForm");
 
@@ -21,24 +26,29 @@ function threshold() {
 
 router.post("/heal-ui", async function (req, res, next) {
   try {
-    var data = req.body;
-    var check = telemetry.isDataValid(data);
-    if (check.valid === false) {
+    var body = req.body || {};
+    var check = validateTelemetryRequest(body);
+    if (!check.valid) {
       return res.status(400).json({ success: false, error: check.error });
     }
+    var data = check.data;
 
     var score = telemetry.calculateScore(data.mouseSpeed, data.pauseTime, data.rageClicks);
     var triggerAI = score >= threshold();
-    var sessionId = typeof data.sessionId === "string" && data.sessionId ? data.sessionId : "anonymous";
-    var reply = {
+    // The zod schema drops unknown keys, so the optional sessionId is read from the raw body.
+    var sessionId = typeof body.sessionId === "string" && body.sessionId ? body.sessionId : "anonymous";
+
+    var base = validateTelemetryResponse({
       success: true,
       score: score,
       triggerAI: triggerAI,
       stuckField: data.fieldName,
-      savedValue: data.userInput || "",
-      ui: null,
-      generation: null,
-    };
+      savedValue: data.userInput,
+    });
+    if (!base.valid) {
+      return res.status(500).json({ success: false, error: "Internal validation failure: " + base.error });
+    }
+    var reply = Object.assign({}, base.data, { ui: null, generation: null });
 
     if (!triggerAI) return res.status(200).json(reply);
 

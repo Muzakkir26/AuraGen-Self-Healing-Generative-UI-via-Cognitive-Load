@@ -125,6 +125,38 @@ test("invalid telemetry is rejected with 400", async function () {
   assert.equal(body.success, false);
 });
 
+test("zod schema rejects negative values, fractional rage clicks and an empty field name", async function () {
+  var bad = [
+    Object.assign({}, STRUGGLING, { mouseSpeed: -5 }),
+    Object.assign({}, STRUGGLING, { pauseTime: -1 }),
+    Object.assign({}, STRUGGLING, { rageClicks: 2.5 }),
+    Object.assign({}, STRUGGLING, { fieldName: "" }),
+  ];
+  for (var payload of bad) {
+    var res = await post("/api/heal-ui", payload);
+    assert.equal(res.status, 400, JSON.stringify(payload));
+    var body = await res.json();
+    assert.equal(body.success, false);
+    assert.match(body.error, /^(mouseSpeed|pauseTime|rageClicks|fieldName): /);
+  }
+});
+
+test("missing userInput defaults to an empty savedValue", async function () {
+  var payload = { mouseSpeed: 20, pauseTime: 1, rageClicks: 0, fieldName: "annual_income" };
+  var body = await (await post("/api/heal-ui", payload)).json();
+  assert.equal(body.savedValue, "");
+  assert.equal(body.triggerAI, false);
+});
+
+test("sessionId survives validation, so the cooldown is per session", async function () {
+  var a = await (await post("/api/heal-ui", Object.assign({ sessionId: "s_one" }, STRUGGLING))).json();
+  var b = await (await post("/api/heal-ui", Object.assign({ sessionId: "s_two" }, STRUGGLING))).json();
+  assert.equal(a.ui.type, "ui.generated");
+  assert.equal(b.ui.type, "ui.generated");
+  var again = await (await post("/api/heal-ui", Object.assign({ sessionId: "s_one" }, STRUGGLING))).json();
+  assert.equal(again.ui.reason, "cooldown");
+});
+
 test("/api/heal-ui and /api/generate share one cooldown", async function () {
   var request = financialForm.toGenerationRequest(STRUGGLING, "s_shared");
   var gen = await post("/api/generate", request);

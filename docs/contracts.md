@@ -1,10 +1,11 @@
-# AuraGen Interface Contracts — v0.4 (draft)
+# AuraGen Interface Contracts — v0.5 (draft)
 
 Owner: Member-01 (Team Lead). These are the shared message formats between the frontend, backend, AI layer and tests. **Do not change a contract without telling the members who depend on it.** Every change bumps the version at the top of this file.
 
 All timestamps are milliseconds since epoch. All IDs are strings.
 
 **Changelog**
+- v0.5 (2026-11-19): §9 validates telemetry with the shared zod schemas in `server/schemas/` (same rules as `/api/telemetry`): numbers must be non-negative, `rageClicks` an integer, `fieldName` non-empty. Invalid bodies get 400 with `error` = `"<field>: <reason>"`. No shapes changed.
 - v0.4 (2026-11-16): new §9 `POST /api/heal-ui`, the one-call trigger that the frontend already uses: REST telemetry in, score + `ui` message out. Generation starts at `LOAD_HIGH_THRESHOLD` (70). No existing shapes changed.
 - v0.3 (2026-11-15): new §8 `POST /api/generate` (HTTP form of §3 → §4 + §5). §4 `meta` gains `provider`, `attempts` and `error`. No existing shapes changed.
 - v0.2 (2026-11-15): §6 clarified to match the implemented AST validator (`ai/validator/astValidator.js`): event-handler, computed-access and loop rules, plus extra banned identifiers and attributes. §5 adds how the renderer must build `compiled`. No message shapes changed.
@@ -221,7 +222,7 @@ Reply (the `/api/telemetry` fields plus `ui` and `generation`):
 | Generation rejected or failed | 200 | `ui.fallback`, `reason` = `rejected` / `error` (cooldown not started, so the next trigger retries) |
 | Same session + field generated less than `GENERATION_COOLDOWN_MS` ago (shared with §8) | 200 | `ui.fallback`, `reason: "cooldown"` |
 | `fieldName` is not in the form schema | 200 | `ui.fallback`, `reason: "unknown-field"` |
-| Invalid telemetry | 400 | none |
+| Invalid telemetry (fails `server/schemas/requestSchema.js`: negative numbers, fractional `rageClicks`, empty `fieldName`, wrong types) | 400 | none; `error` = `"<field>: <reason>"` |
 
 `userInput` only reaches the browser again through `ui.initialValues`. The LLM prompt only says whether the field is filled or empty.
 Cross-origin calls from the Next.js dev server are allowed for the origins in `CORS_ORIGIN` (default `http://localhost:3000`).
