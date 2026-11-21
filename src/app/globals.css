@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+  --ink: #172033;
+  --muted: #68748b;
+  --line: #e5eaf2;
+  --brand: #6258e8;
+  --brand-deep: #4038a8;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  color: var(--ink);
+  min-height: 100vh;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  background: #f5f7fc;
+  background-image: radial-gradient(ellipse at 8% 0%, rgba(115, 104, 244, .10), transparent 34%),
+    radial-gradient(ellipse at 96% 20%, rgba(57, 190, 190, .08), transparent 28%);
+}
+::selection { background: rgba(111, 99, 232, .18); color: #29235f; }
+
+/* Shared polish for the application surface */
+main { animation: page-enter .55s ease both; }
+main form > div { border-radius: 20px !important; border-color: #e6eaf2 !important; box-shadow: 0 12px 34px rgba(32, 43, 77, .055) !important; transition: box-shadow .25s ease, transform .25s ease; }
+main form > div:hover { box-shadow: 0 16px 40px rgba(32, 43, 77, .085) !important; }
+main form > div > div:first-child { border-color: #edf0f6 !important; background: linear-gradient(180deg, #fff, #fcfcff); }
+main form input:not([type="checkbox"]) { min-height: 46px; border-radius: 11px; border-color: #dce2ed; background: #fbfcff; transition: border-color .2s ease, box-shadow .2s ease, background .2s ease; }
+main form input:not([type="checkbox"]):focus { background: #fff; border-color: #8278f0; box-shadow: 0 0 0 4px rgba(111, 99, 232, .12); }
+main form label { letter-spacing: .055em; }
+
+.aura-header { background: rgba(255,255,255,.88); border-bottom: 1px solid rgba(226,232,240,.9); box-shadow: 0 5px 24px rgba(35,45,80,.045); backdrop-filter: blur(18px); }
+.aura-brand-mark { box-shadow: 0 8px 18px rgba(91,82,219,.25); }
+.aura-hero { isolation: isolate; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,.16); background: linear-gradient(118deg, #171b3c 0%, #302c72 48%, #5145b5 100%); box-shadow: 0 22px 50px rgba(48,44,114,.18); }
+.aura-hero::before, .aura-hero::after { content: ""; position: absolute; z-index: -1; border-radius: 999px; pointer-events: none; }
+.aura-hero::before { width: 380px; height: 380px; right: -80px; top: -210px; background: rgba(148,139,255,.24); filter: blur(2px); }
+.aura-hero::after { width: 260px; height: 260px; right: 130px; bottom: -205px; border: 1px solid rgba(255,255,255,.16); box-shadow: 0 0 0 28px rgba(255,255,255,.035), 0 0 0 58px rgba(255,255,255,.025); }
+.aura-hero-grid { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: end; gap: 24px; }
+.aura-hero-stat { min-width: 150px; padding: 15px 17px; border: 1px solid rgba(255,255,255,.16); border-radius: 16px; background: rgba(255,255,255,.09); backdrop-filter: blur(12px); }
+.aura-step-label { color: #7b72e9; background: #f0efff; border: 1px solid #e4e1ff; border-radius: 999px; padding: 5px 10px; font-size: 10px; font-weight: 800; letter-spacing: .09em; text-transform: uppercase; }
+.aura-footer { color: #8993a7; }
+
+@keyframes page-enter { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@media (max-width: 640px) {
+  .aura-hero-grid { grid-template-columns: 1fr; align-items: start; }
+  .aura-hero-stat { display: none; }
+  main form > div > div:first-child { padding: 17px 18px; }
+  main form > div > div:nth-child(2) { padding: 18px; }
+}
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; } }
