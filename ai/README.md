@@ -17,6 +17,7 @@ Everything between "the backend decided to generate a UI" and "the browser recei
 | Backend route `POST /api/generate` | `../server/routes/generateRoute.js` | Done |
 | Trigger `POST /api/heal-ui` (score ≥ 70 → generate) | `../server/routes/healUiRoute.js` | Done |
 | Generation audit (pass rate, latency, violations) | `audit/runAudit.js` | Done |
+| Renderer runtime: `compiled` → component, keep typed values | `runtime/loadComponent.js` | Done |
 | Token streaming to the frontend | | Planned (W4) |
 
 ## Run
@@ -63,17 +64,27 @@ if (out.ok) {
 
 ## Use (renderer, Member-02)
 
-`compiled` is a plain function body. Build it with the exported parameter list so the
-approved components are in scope and every dangerous global is shadowed as `undefined`:
+`runtime/loadComponent.js` has no Node or Babel dependencies, so the frontend can import it or copy it.
+It builds `compiled` with the approved components in scope and every dangerous global shadowed as `undefined`
+(even if the scope passes one in), and it merges values so the user's typing survives the swap:
 
 ```js
-import { RUNTIME_PARAMS } from "<shared copy of ai/validator/compile.js params>";
+import { loadGeneratedComponent, startingValues, applyChange } from "<ai/runtime/loadComponent.js>";
 
 const scope = { React, useState, useMemo, Wizard, WizardStep, TextField, /* ...all approved components */ };
-const factory = new Function(...RUNTIME_PARAMS, compiled);
-const Generated = factory(...RUNTIME_PARAMS.map((name) => scope[name]));
-// <Suspense><ErrorBoundary fallback={<StaticWizard/>}><Generated values={...} onChange={...} onSubmit={...}/></ErrorBoundary></Suspense>
+let Generated;
+try {
+  Generated = loadGeneratedComponent(msg.compiled, scope);   // throws RuntimeLoadError → show the static wizard
+} catch { /* fallback */ }
+
+const [values, setValues] = useState(() => startingValues(msg, formValues)); // page values win, server fills gaps
+// <ErrorBoundary fallback={<StaticWizard/>}>
+//   <Generated values={values} onChange={(id, v) => setValues((p) => applyChange(p, id, v))} onSubmit={...}/>
+// </ErrorBoundary>
 ```
+
+`test/runtime.test.js` renders the real compiled output with React 18 for every field type and checks that
+the saved value shows in the input after the swap and that edits flow back to the form values.
 
 ## What the validator checks
 

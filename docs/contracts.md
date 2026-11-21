@@ -1,10 +1,11 @@
-# AuraGen Interface Contracts — v0.5 (draft)
+# AuraGen Interface Contracts — v0.6 (draft)
 
 Owner: Member-01 (Team Lead). These are the shared message formats between the frontend, backend, AI layer and tests. **Do not change a contract without telling the members who depend on it.** Every change bumps the version at the top of this file.
 
 All timestamps are milliseconds since epoch. All IDs are strings.
 
 **Changelog**
+- v0.6 (2026-11-21): §5 states how the renderer seeds values: page values win, `initialValues` fill empty fields. Reference loader in `ai/runtime/loadComponent.js`. No shapes changed.
 - v0.5 (2026-11-19): §9 validates telemetry with the shared zod schemas in `server/schemas/` (same rules as `/api/telemetry`): numbers must be non-negative, `rageClicks` an integer, `fieldName` non-empty. Invalid bodies get 400 with `error` = `"<field>: <reason>"`. No shapes changed.
 - v0.4 (2026-11-16): new §9 `POST /api/heal-ui`, the one-call trigger that the frontend already uses: REST telemetry in, score + `ui` message out. Generation starts at `LOAD_HIGH_THRESHOLD` (70). No existing shapes changed.
 - v0.3 (2026-11-15): new §8 `POST /api/generate` (HTTP form of §3 → §4 + §5). §4 `meta` gains `provider`, `attempts` and `error`. No existing shapes changed.
@@ -126,6 +127,11 @@ Starting weights: rage clicks 0.35, hesitation 0.25, errors 0.25, velocity varia
 ```
 
 When the frontend receives `ui.fallback`, it shows the **pre-built** static wizard for that field.
+
+**Keeping typed data (contextual awareness).** The generated component starts with
+`startingValues(msg, pageValues)`: a field keeps the value currently on the page, and only an empty field is
+filled from `initialValues`. Its `onChange(fieldId, value)` writes back into the same form values, so nothing
+is lost when the UI is swapped in or out. If `loadGeneratedComponent` throws, treat it like `ui.fallback`.
 
 ## 6. Generated-component rules (enforced by the AST validator)
 
