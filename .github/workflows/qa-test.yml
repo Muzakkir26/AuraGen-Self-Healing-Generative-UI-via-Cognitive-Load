@@ -1,4 +1,5 @@
-name: AuraGen QA & Invariant Test Suite
+# .github/workflows/qa-test.yml
+name: AuraGen Complete QA & Invariant Pipeline
 
 on:
   push:
@@ -7,29 +8,37 @@ on:
     branches: [ main ]
 
 jobs:
-  qa-evaluation:
-    name: Execute 16-Step Cross-Team Integration Suite
+  qa-suite:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
+      - name: Setup Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup Python 3.11
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Run AuraGen Master QA Suite
-        run: |
-          python run_auragen_suite.py
+      # 1. Run Member-04 Real Module Cross-Team Tests
+      - name: Real Module Cross-Team Tests
+        run: node --test Integration_Testing/test_real_modules.test.js
 
-      - name: Upload Test Execution Evidence
+      # 2. Run Member-04 Master Invariant Suite
+      - name: Master Invariant & Benchmark Suite
+        run: python run_auragen_suite.py
+
+      # 3. Archive Test Logs & Benchmarks
+      - name: Upload Test Evidence Artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: auragen-qa-evidence
+          name: auragen-qa-deliverables
           path: |
             Test_Logs/
+            Test_Cases/*.xlsx
             Performance_Evaluation/
-            Final_Report/
+            Screenshots/
