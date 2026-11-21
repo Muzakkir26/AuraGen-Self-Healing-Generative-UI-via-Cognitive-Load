@@ -15,12 +15,8 @@
  */
 
 const babel = require("@babel/core");
-const ds = require("../designSystem");
 const { validate } = require("./astValidator");
-
-const SHADOWED_GLOBALS = ds.BANNED_IDENTIFIERS.filter((n) => n !== "eval"); // "eval" cannot be a parameter name in strict mode.
-
-const RUNTIME_PARAMS = ["React", ...ds.ALLOWED_HOOKS, ...ds.COMPONENT_NAMES, ...SHADOWED_GLOBALS];
+const { RUNTIME_PARAMS, SHADOWED_GLOBALS } = require("../runtime/params");
 
 // Turns `export default function X() {}` into `function X() {}` ... `return X;`
 function exportToReturn({ types: t }) {
