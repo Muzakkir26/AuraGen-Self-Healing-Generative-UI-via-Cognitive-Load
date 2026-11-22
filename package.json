@@ -13,7 +13,8 @@
     "ai:install": "npm --prefix ai install",
     "test:ai": "npm --prefix ai test",
     "test:server": "node --test \"server/test/*.test.js\"",
-    "audit:ai": "npm --prefix ai run audit"
+    "audit:ai": "npm --prefix ai run audit",
+    "demo:heal-ui": "node scripts/demo-heal-ui.js"
   },
   "dependencies": {
     "@babel/parser": "^8.1.3",
