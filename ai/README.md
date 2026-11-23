@@ -98,11 +98,14 @@ agent can hand the whole list back to the LLM for a single repair attempt.
 | `props` | Props other than `{ values, onChange, onSubmit }` |
 | `import` | `import` statements, dynamic `import()` |
 | `banned-identifier` | `window`, `document`, `fetch`, `eval`, `Function`, timers, `process`, `require`, etc. |
-| `banned-property` | `.constructor`, `.prototype`, `.__proto__` and similar prototype-chain escapes |
-| `computed-access` | `x[runtimeKey]` except on `values` or a local const array/object literal; calling such a read |
+| `banned-property` | `.constructor`, `.prototype`, `.__proto__` and similar prototype-chain escapes, also as object keys and destructuring keys (`const { constructor: F } = fn`) |
+| `computed-access` | `x[runtimeKey]` except on `values` or a local const array/object literal; calling such a read; destructuring with a runtime key |
 | `member-access` | `a.b` where `a` is not a prop or local (e.g. `Math.max`, `React.useEffect`) |
+| `unknown-global` | Any free name other than the approved components, hooks and `undefined NaN Infinity String Number Boolean` (so `const O = Object` is rejected) |
+| `mutation` | Writing to a property: `values.x = 1`, `x.n++`, `delete x.y`, or a property as a destructuring target |
+| `reserved` | Names starting with `__auragen` (used by the compiler) |
 | `hook` | Any hook except `useState`, `useMemo` |
-| `loop`, `syntax` | Loops, `new`, `this`, `debugger`, async/generators, tagged templates |
+| `loop`, `syntax` | Loops, `new`, `this`, `debugger`, async/generators, tagged templates, classes, getters/setters |
 | `jsx-element` | Tags outside the approved components and `div span p h2 h3 ul li label` |
 | `jsx-attribute` | `dangerouslySetInnerHTML`, `ref`, `style`, `href`, `src`, spreads |
 | `event-handler` | `on*` on raw HTML elements, or a handler that isn't a function / prop reference |
@@ -110,3 +113,15 @@ agent can hand the whole list back to the LLM for a single repair attempt.
 
 **Defence in depth:** static analysis alone cannot make JavaScript fully safe, so the compiler also shadows every
 banned global as a `new Function` parameter. Code that slips past the validator still can't reach `window` or `fetch` by name.
+
+**Own-key guard:** every read with a runtime key (`values[field.id]`, `STEPS[step]`) is compiled to
+`__auragenOwn(obj, key)`, which returns only the object's own properties. A key built at runtime
+(`"constr" + "uctor"`) gets `undefined` instead of `Object`, so it cannot climb to `Function`. The key is turned into
+a string once, so a key object with a changing `toString()` can't pass the check as one name and be read as another.
+The helper is defined inside `compiled`, so the renderer contract is unchanged.
+
+`test/attacks.test.js` holds the known escape attempts (destructuring, runtime keys, globals held in variables,
+classes, property writes) and runs the real escapes end to end to show they can't reach the global object.
+
+**Not covered (low risk, worth knowing):** a slow regular expression or endless recursion can freeze the user's
+own tab; a `throw` ends up in the renderer's error boundary and shows the fallback wizard.

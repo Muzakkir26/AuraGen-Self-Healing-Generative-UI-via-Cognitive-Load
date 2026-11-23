@@ -1,10 +1,11 @@
-# AuraGen Interface Contracts — v0.6 (draft)
+# AuraGen Interface Contracts — v0.7 (draft)
 
 Owner: Member-01 (Team Lead). These are the shared message formats between the frontend, backend, AI layer and tests. **Do not change a contract without telling the members who depend on it.** Every change bumps the version at the top of this file.
 
 All timestamps are milliseconds since epoch. All IDs are strings.
 
 **Changelog**
+- v0.7 (2026-11-23): §6 closes sandbox escapes: banned keys in destructuring and object literals, free names limited to an allow-list, no property writes, no classes or getters/setters, `arguments` banned. `compiled` now starts with an own-key helper for runtime-key reads; the renderer contract is unchanged. Prompt version `p-0.2`.
 - v0.6 (2026-11-21): §5 states how the renderer seeds values: page values win, `initialValues` fill empty fields. Reference loader in `ai/runtime/loadComponent.js`. No shapes changed.
 - v0.5 (2026-11-19): §9 validates telemetry with the shared zod schemas in `server/schemas/` (same rules as `/api/telemetry`): numbers must be non-negative, `rageClicks` an integer, `fieldName` non-empty. Invalid bodies get 400 with `error` = `"<field>: <reason>"`. No shapes changed.
 - v0.4 (2026-11-16): new §9 `POST /api/heal-ui`, the one-call trigger that the frontend already uses: REST telemetry in, score + `ui` message out. Generation starts at `LOAD_HIGH_THRESHOLD` (70). No existing shapes changed.
@@ -149,16 +150,20 @@ The validator **rejects** any code that contains:
 
 - `import` or `require`, or any dynamic `import()`
 - The identifiers `window`, `document`, `globalThis`, `self`, `top`, `parent`, `localStorage`, `sessionStorage`, `indexedDB`, `navigator`, `location`, `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource`, `Worker`, `eval`, `Function`, `setTimeout`, `setInterval`, `requestAnimationFrame`, `queueMicrotask`, `process`, `module`, `exports`, `global`, `Reflect`, `Proxy` (the full list lives in `ai/designSystem.js`)
-- The properties `constructor`, `prototype`, `__proto__` and related prototype-chain escapes
+- The properties `constructor`, `prototype`, `__proto__` and related prototype-chain escapes, including as object keys or destructuring keys (`const { constructor: F } = onSubmit`)
+- Any free name except the approved components and hooks and `undefined`, `NaN`, `Infinity`, `String`, `Number`, `Boolean` (so `const O = Object` is rejected), plus `arguments` and names starting with `__auragen`
+- Writes to properties (`values.x = 1`, `x.n++`, `delete x.y`, a property as a destructuring target). Field values change only through `onChange`
 - The attributes `dangerouslySetInnerHTML`, `ref`, `style`, `href`, `src`, and spread attributes `{...x}`
 - `on*` handlers on raw HTML elements. On approved components, a handler must be a function or a prop reference (e.g. `onClick={() => setStep(1)}`), never a string
 - Raw HTML elements other than `div, span, p, h2, h3, ul, li, label`
 - Member access on anything that isn't a prop or a local variable (so no `Math.max`, `React.useEffect`)
-- Reads with a runtime key (`x[k]`) except on `values` or a local const array/object literal, and calls on such reads
-- Loops (`for`, `while`, `do`), `new`, `this`, `debugger`, `async`/generators, tagged templates
+- Reads with a runtime key (`x[k]`) except on `values` or a local const array/object literal, calls on such reads, and destructuring with a runtime key
+- Loops (`for`, `while`, `do`), `new`, `this`, `debugger`, `async`/generators, tagged templates, classes, getters/setters
 - Source over 8 KB, or a parse error
 
 **Renderer contract:** `compiled` is a function body. The renderer must build it with `new Function(...RUNTIME_PARAMS, compiled)` using the parameter list exported by `ai/validator/compile.js`, passing `undefined` for every shadowed global.
+
+The compiler rewrites every runtime-key read `x[k]` to an own-property read (inherited members such as `constructor` come back `undefined`). The helper is defined at the top of `compiled`, so the renderer passes nothing extra.
 
 ## 7. Approved component props (design system ds-0.1)
 
