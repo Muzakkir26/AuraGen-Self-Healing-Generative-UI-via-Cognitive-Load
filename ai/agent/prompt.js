@@ -15,7 +15,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const ds = require("../designSystem");
 
-const PROMPT_VERSION = "p-0.1";
+const PROMPT_VERSION = "p-0.2";
 const MAX_TEXT = 200; // Cap on any schema string we copy into the prompt.
 
 const FEW_SHOT_EXAMPLE = fs.readFileSync(path.join(__dirname, "..", "examples", "PanWizard.jsx"), "utf8").trim();
@@ -60,9 +60,10 @@ ALSO ALLOWED
 FORBIDDEN (the code is rejected automatically if it contains any of these)
 - import, require, export other than the single default export.
 - These names: ${ds.BANNED_IDENTIFIERS.join(", ")}.
-- Accessing ${ds.BANNED_PROPERTIES.slice(0, 3).join(", ")} or any global object such as Math, JSON, Object, Date, React.
+- Accessing ${ds.BANNED_PROPERTIES.slice(0, 3).join(", ")} (also as object or destructuring keys), or any global object such as Math, JSON, Object, Date, React. The only globals you may use are ${ds.ALLOWED_GLOBALS.join(", ")}.
+- Writing to properties (values.x = 1, delete values.x). Change values only with onChange or a useState setter.
 - The attributes ${ds.BANNED_ATTRIBUTES.join(", ")}, and spread attributes {...x}.
-- Loops (for, while), new, this, async/await, other hooks, other HTML tags, other components.
+- Loops (for, while), new, this, async/await, classes, getters/setters, other hooks, other HTML tags, other components.
 - More than ${ds.MAX_SOURCE_BYTES} bytes of code.
 
 STYLE

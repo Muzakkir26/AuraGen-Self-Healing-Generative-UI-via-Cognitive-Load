@@ -21,6 +21,7 @@ const HOOKS = new Set(ds.ALLOWED_HOOKS);
 const BANNED_IDS = new Set(ds.BANNED_IDENTIFIERS);
 const BANNED_PROPS = new Set(ds.BANNED_PROPERTIES);
 const BANNED_ATTRS = new Set(ds.BANNED_ATTRIBUTES);
+const FREE_NAMES = new Set([...ds.ALLOWED_GLOBALS, ...ds.COMPONENT_NAMES, ...ds.ALLOWED_HOOKS]);
 
 // Computed (runtime-key) reads are allowed only on the `values` prop, e.g. values[field.id],
 // and on local consts initialised with an array/object literal, e.g. STEPS[step].
@@ -52,6 +53,31 @@ function propertyName(member) {
   if (!member.computed && p.type === "Identifier") return p.name;
   if (p.type === "StringLiteral") return p.value;
   return null;
+}
+
+// Static name of an object/pattern key: { a: 1 }, { "a": 1 }, { ["a"]: 1 }. null for a runtime key.
+function keyName(node) {
+  const k = node.key;
+  if (!node.computed && k.type === "Identifier") return k.name;
+  if (k.type === "StringLiteral") return k.value;
+  return null;
+}
+
+// True when a member expression is being written to: a.b = 1, a.b++, delete a.b, or a
+// destructuring target such as ({ x: a.b } = obj) and [a.b] = arr.
+function isWriteTarget(p) {
+  const node = p.node;
+  const parent = p.parent;
+  switch (parent.type) {
+    case "AssignmentExpression": return parent.left === node;
+    case "UpdateExpression": return true;
+    case "UnaryExpression": return parent.operator === "delete";
+    case "ArrayPattern":
+    case "RestElement": return true;
+    case "AssignmentPattern": return parent.left === node;
+    case "ObjectProperty": return parent.value === node && p.parentPath.parent.type === "ObjectPattern";
+    default: return false;
+  }
 }
 
 function validate(source) {
@@ -123,13 +149,38 @@ function validate(source) {
     ForOfStatement(p) { add("loop", "for/of loops are not allowed; use array .map().", p.node); },
     TaggedTemplateExpression(p) { add("syntax", "Tagged templates are not allowed.", p.node); },
     AwaitExpression(p) { add("syntax", "await is not allowed.", p.node); },
+    "ClassDeclaration|ClassExpression"(p) { add("syntax", "Classes are not allowed.", p.node); },
     "FunctionExpression|ArrowFunctionExpression|FunctionDeclaration"(p) {
       if (p.node.async || p.node.generator) add("syntax", "Async and generator functions are not allowed.", p.node);
     },
 
-    // Banned globals, wherever they appear as a real identifier (not as an object key or a.b property).
+    // Object keys, including destructuring patterns: { constructor: F } = fn is the same escape as fn.constructor.
+    ObjectProperty(p) {
+      const name = keyName(p.node);
+      if (name !== null && BANNED_PROPS.has(name)) {
+        add("banned-property", `The key "${name}" is not allowed.`, p.node);
+      } else if (name === null && p.parent.type === "ObjectPattern") {
+        add("computed-access", "Destructuring with a computed key is not allowed.", p.node);
+      }
+    },
+    ObjectMethod(p) {
+      if (p.node.kind === "get" || p.node.kind === "set") add("syntax", "Getters and setters are not allowed.", p.node);
+      const name = keyName(p.node);
+      if (name !== null && BANNED_PROPS.has(name)) add("banned-property", `The key "${name}" is not allowed.`, p.node);
+    },
+
     Identifier(p) {
       const name = p.node.name;
+      if (name.startsWith(ds.RESERVED_PREFIX)) {
+        add("reserved", `Names starting with "${ds.RESERVED_PREFIX}" are reserved.`, p.node);
+        return;
+      }
+      // Free names (not a prop or local variable) must be on the allow-list.
+      if (!BANNED_IDS.has(name) && p.isReferencedIdentifier() && !p.scope.getBinding(name) && !FREE_NAMES.has(name)) {
+        add("unknown-global", `"${name}" is not defined here; only props, local variables, approved components and ${ds.ALLOWED_GLOBALS.join(", ")} may be used.`, p.node);
+        return;
+      }
+      // Banned globals, wherever they appear as a real identifier (not as an object key or a.b property).
       if (!BANNED_IDS.has(name)) return;
       const parent = p.parent;
       const isPropertyKey =
@@ -141,6 +192,9 @@ function validate(source) {
     // Property access rules
     "MemberExpression|OptionalMemberExpression"(p) {
       const node = p.node;
+      if (isWriteTarget(p)) {
+        add("mutation", "Writing to a property is not allowed; call onChange(fieldId, value) or a useState setter.", node);
+      }
       const name = propertyName(node);
       if (name && BANNED_PROPS.has(name)) {
         add("banned-property", `Access to ".${name}" is not allowed.`, node);
@@ -153,7 +207,7 @@ function validate(source) {
         const obj = node.object;
         if (!allowsComputedAccess(p.scope, obj)) {
           add("computed-access", "Computed access with a runtime key is only allowed on `values` or a local const array/object literal.", node);
-        } else if (p.parent.type === "CallExpression" && p.parent.callee === node) {
+        } else if ((p.parent.type === "CallExpression" || p.parent.type === "OptionalCallExpression") && p.parent.callee === node) {
           add("computed-access", "Calling a value read with a computed key is not allowed.", node);
         }
       }

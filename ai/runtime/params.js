@@ -9,8 +9,9 @@
 
 const ds = require("../designSystem");
 
-// "eval" cannot be a parameter name in strict mode, and the validator already rejects it by name.
-const SHADOWED_GLOBALS = ds.BANNED_IDENTIFIERS.filter((n) => n !== "eval");
+// "eval" and "arguments" cannot be parameter names in strict mode; the validator rejects them by name.
+const NOT_PARAMS = new Set(["eval", "arguments"]);
+const SHADOWED_GLOBALS = ds.BANNED_IDENTIFIERS.filter((n) => !NOT_PARAMS.has(n));
 
 const RUNTIME_PARAMS = ["React", ...ds.ALLOWED_HOOKS, ...ds.COMPONENT_NAMES, ...SHADOWED_GLOBALS];
 
