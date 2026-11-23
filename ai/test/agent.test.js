@@ -29,7 +29,7 @@ test("ok on the first try returns a contracts §4 result", async () => {
   assert.deepEqual(r.validation, { passed: true, violations: [] });
   assert.equal(r.meta.attempts, 1);
   assert.equal(r.meta.cacheHit, false);
-  assert.equal(r.meta.promptVersion, "p-0.1");
+  assert.equal(r.meta.promptVersion, "p-0.2");
   assert.equal(typeof r.meta.latencyMs, "number");
 });
 

@@ -17,6 +17,7 @@ Everything between "the backend decided to generate a UI" and "the browser recei
 | Backend route `POST /api/generate` | `../server/routes/generateRoute.js` | Done |
 | Trigger `POST /api/heal-ui` (score ≥ 70 → generate) | `../server/routes/healUiRoute.js` | Done |
 | Generation audit (pass rate, latency, violations) | `audit/runAudit.js` | Done |
+| Renderer runtime: `compiled` → component, keep typed values | `runtime/loadComponent.js` | Done |
 | Token streaming to the frontend | | Planned (W4) |
 
 ## Run
@@ -63,17 +64,27 @@ if (out.ok) {
 
 ## Use (renderer, Member-02)
 
-`compiled` is a plain function body. Build it with the exported parameter list so the
-approved components are in scope and every dangerous global is shadowed as `undefined`:
+`runtime/loadComponent.js` has no Node or Babel dependencies, so the frontend can import it or copy it.
+It builds `compiled` with the approved components in scope and every dangerous global shadowed as `undefined`
+(even if the scope passes one in), and it merges values so the user's typing survives the swap:
 
 ```js
-import { RUNTIME_PARAMS } from "<shared copy of ai/validator/compile.js params>";
+import { loadGeneratedComponent, startingValues, applyChange } from "<ai/runtime/loadComponent.js>";
 
 const scope = { React, useState, useMemo, Wizard, WizardStep, TextField, /* ...all approved components */ };
-const factory = new Function(...RUNTIME_PARAMS, compiled);
-const Generated = factory(...RUNTIME_PARAMS.map((name) => scope[name]));
-// <Suspense><ErrorBoundary fallback={<StaticWizard/>}><Generated values={...} onChange={...} onSubmit={...}/></ErrorBoundary></Suspense>
+let Generated;
+try {
+  Generated = loadGeneratedComponent(msg.compiled, scope);   // throws RuntimeLoadError → show the static wizard
+} catch { /* fallback */ }
+
+const [values, setValues] = useState(() => startingValues(msg, formValues)); // page values win, server fills gaps
+// <ErrorBoundary fallback={<StaticWizard/>}>
+//   <Generated values={values} onChange={(id, v) => setValues((p) => applyChange(p, id, v))} onSubmit={...}/>
+// </ErrorBoundary>
 ```
+
+`test/runtime.test.js` renders the real compiled output with React 18 for every field type and checks that
+the saved value shows in the input after the swap and that edits flow back to the form values.
 
 ## What the validator checks
 
@@ -87,11 +98,14 @@ agent can hand the whole list back to the LLM for a single repair attempt.
 | `props` | Props other than `{ values, onChange, onSubmit }` |
 | `import` | `import` statements, dynamic `import()` |
 | `banned-identifier` | `window`, `document`, `fetch`, `eval`, `Function`, timers, `process`, `require`, etc. |
-| `banned-property` | `.constructor`, `.prototype`, `.__proto__` and similar prototype-chain escapes |
-| `computed-access` | `x[runtimeKey]` except on `values` or a local const array/object literal; calling such a read |
+| `banned-property` | `.constructor`, `.prototype`, `.__proto__` and similar prototype-chain escapes, also as object keys and destructuring keys (`const { constructor: F } = fn`) |
+| `computed-access` | `x[runtimeKey]` except on `values` or a local const array/object literal; calling such a read; destructuring with a runtime key |
 | `member-access` | `a.b` where `a` is not a prop or local (e.g. `Math.max`, `React.useEffect`) |
+| `unknown-global` | Any free name other than the approved components, hooks and `undefined NaN Infinity String Number Boolean` (so `const O = Object` is rejected) |
+| `mutation` | Writing to a property: `values.x = 1`, `x.n++`, `delete x.y`, or a property as a destructuring target |
+| `reserved` | Names starting with `__auragen` (used by the compiler) |
 | `hook` | Any hook except `useState`, `useMemo` |
-| `loop`, `syntax` | Loops, `new`, `this`, `debugger`, async/generators, tagged templates |
+| `loop`, `syntax` | Loops, `new`, `this`, `debugger`, async/generators, tagged templates, classes, getters/setters |
 | `jsx-element` | Tags outside the approved components and `div span p h2 h3 ul li label` |
 | `jsx-attribute` | `dangerouslySetInnerHTML`, `ref`, `style`, `href`, `src`, spreads |
 | `event-handler` | `on*` on raw HTML elements, or a handler that isn't a function / prop reference |
@@ -99,3 +113,15 @@ agent can hand the whole list back to the LLM for a single repair attempt.
 
 **Defence in depth:** static analysis alone cannot make JavaScript fully safe, so the compiler also shadows every
 banned global as a `new Function` parameter. Code that slips past the validator still can't reach `window` or `fetch` by name.
+
+**Own-key guard:** every read with a runtime key (`values[field.id]`, `STEPS[step]`) is compiled to
+`__auragenOwn(obj, key)`, which returns only the object's own properties. A key built at runtime
+(`"constr" + "uctor"`) gets `undefined` instead of `Object`, so it cannot climb to `Function`. The key is turned into
+a string once, so a key object with a changing `toString()` can't pass the check as one name and be read as another.
+The helper is defined inside `compiled`, so the renderer contract is unchanged.
+
+`test/attacks.test.js` holds the known escape attempts (destructuring, runtime keys, globals held in variables,
+classes, property writes) and runs the real escapes end to end to show they can't reach the global object.
+
+**Not covered (low risk, worth knowing):** a slow regular expression or endless recursion can freeze the user's
+own tab; a `throw` ends up in the renderer's error boundary and shows the fallback wizard.
