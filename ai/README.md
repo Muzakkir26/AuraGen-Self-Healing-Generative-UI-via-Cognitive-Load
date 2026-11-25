@@ -1,4 +1,4 @@
-# /ai: AuraGen AI layer (Member-01)
+# /ai: AuraGen AI layer
 
 Everything between "the backend decided to generate a UI" and "the browser receives safe, compiled code".
 
@@ -62,7 +62,7 @@ if (out.ok) {
 }
 ```
 
-## Use (renderer, Member-02)
+## Use (renderer)
 
 `runtime/loadComponent.js` has no Node or Babel dependencies, so the frontend can import it or copy it.
 It builds `compiled` with the approved components in scope and every dangerous global shadowed as `undefined`

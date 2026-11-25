@@ -1,69 +1,71 @@
-# AuraGen — Self-Healing Generative UI via Cognitive Load
+# AuraGen: Self-Healing Generative UI via Cognitive Load
 
 > A user interface that notices when people are struggling and rebuilds itself to help them.
 
-## Problem
+## Overview
 
-Standard user interfaces are static. When a user gets confused by a complex screen, they have to read tooltips, open a separate chatbot, or give up on the task. AI help usually sits next to the UI instead of inside it.
+AuraGen is a self-healing user interface. It watches how a person uses a complex form and, when it detects that they are confused or frustrated, it generates a simpler piece of UI for exactly the field they are stuck on and swaps it into the page live. The user keeps everything they already typed and carries on without reloading, reading help text or opening a chatbot.
 
-## What AuraGen does
+**Demo:** a user struggling with a complex financial form gets a calm, step-by-step wizard for the difficult field, generated on the fly.
 
-AuraGen watches how a user interacts with a complex form: cursor velocity, hesitation and rage clicks. From these signals it computes a real-time **Cognitive Load Score**. When the score crosses a threshold, an LLM generates a simplified, custom React component for the exact point where the user is stuck, for example a step-by-step wizard. The component is validated, compiled and swapped into the page live, without a refresh and without losing anything the user already typed.
+## The problem
 
-**Demo use case:** a user struggling with a complex financial form is moved to a conversational, step-by-step wizard that is generated on the fly.
+Most interfaces are static. When a screen is confusing, the user has to read tooltips, search for help or give up. AI assistance usually sits beside the interface in a chat window instead of improving the interface itself.
+
+## How it works
+
+1. **Sense:** a telemetry hook in the browser tracks cursor speed, pauses (hesitation) and rage clicks on each field.
+2. **Score:** the server turns these signals into a **Cognitive Load Score** from 0 to 100.
+3. **Generate:** when the score reaches the threshold (70 by default), an LLM is asked to write a small React component, such as a wizard, for the field the user is stuck on. The prompt describes our design system, so the result already matches the app's look.
+4. **Validate:** the generated code is parsed into a Babel AST and checked against strict rules: only approved components, no imports, no network or DOM access, no dangerous globals. Unsafe code is rejected, and the model gets one chance to repair it.
+5. **Render:** the compiled component is loaded into the page without a refresh. The user's typed values carry over, and a fallback is shown if anything fails.
 
 ## Key modules
 
 | Module | Tech | Purpose |
 |---|---|---|
-| Friction Engine | React hook + WebSockets | Streams cursor, hesitation and click telemetry and computes the Cognitive Load Score |
-| Code-Gen Agent | LangChain + LLM | Prompted with our design system (Tailwind + component library) to generate pre-styled React components |
-| AST Injector | Babel + Node.js | Parses generated code into an AST, rejects unsafe or invalid code, compiles it and pushes it to the client |
-| Dynamic Renderer | Next.js + React Suspense | Loads the compiled component into the page without a refresh, with a fallback if it fails |
+| Friction Engine | React hook + Node.js | Captures interaction telemetry and computes the Cognitive Load Score |
+| Code-Gen Agent | LangChain + LLM | Generates pre-styled React components from a design-system prompt |
+| AST Validator | Babel | Rejects unsafe or invalid generated code and compiles the safe code |
+| Dynamic Renderer | Next.js + React Suspense | Swaps the generated component into the page and keeps the user's data |
 
-## Architecture (request flow)
+## Architecture
 
 ```
-Browser (Next.js)                      Server (Node.js)
-─────────────────                      ────────────────
-useTelemetry hook ──telemetry.batch──▶ Friction Engine ──score──▶ trigger?
-        ▲                                                     │ yes
-        │                                                     ▼
-        │                               Code-Gen Agent (LangChain + LLM)
-        │                                                     │ JSX source
-        │                                                     ▼
-        │                               AST Injector (Babel: parse → validate → compile)
-        │                                                     │
-Dynamic Renderer ◀────ui.generated / ui.fallback──────────────┘
-(Suspense + ErrorBoundary + Framer Motion)
+Browser (Next.js)                         Server (Node.js)
+─────────────────                         ────────────────
+Telemetry hook ──── telemetry ─────────▶  Friction Engine ──score──▶ score ≥ 70?
+       ▲                                                              │ yes
+       │                                                              ▼
+       │                                  Code-Gen Agent (LangChain + LLM)
+       │                                                              │ JSX source
+       │                                                              ▼
+       │                                  AST Validator (Babel: parse → check → compile)
+       │                                                              │
+Dynamic Renderer ◀──── generated UI or fallback ──────────────────────┘
 ```
 
-The message formats between these parts are defined in [`docs/contracts.md`](docs/contracts.md).
+The main endpoint is `POST /api/heal-ui`: it takes telemetry and returns the score plus, when needed, the generated UI. The message formats are defined in [`docs/contracts.md`](docs/contracts.md).
+
+## Highlights
+
+- **Safe by design:** model output is treated as untrusted until the AST validator passes it, and the compiled code runs with dangerous globals removed.
+- **Private:** what the user typed is never sent to the LLM. The prompt only says whether a field is filled or empty; the real values reach the new component in the browser.
+- **Fast:** responses are cached per form field, and a cool-down stops the UI from changing too often.
+- **Works without an API key:** a mock LLM mode lets the whole flow run and be tested offline.
+
+## Tech stack
+
+Next.js, React, Tailwind CSS · Node.js, Express, zod · LangChain, OpenAI GPT-4o · Babel · node:test
 
 ## Repository layout
 
 ```
-/src        Next.js app: financial form, telemetry hook, UI kit, HUD   (Member-02, guide: docs/frontend.md)
-/server     Express API: scoring, validation, /api/generate, /api/heal-ui (Member-03, AI routes: Member-01)
-/ai         Prompt builder, Code-Gen Agent, Babel validator, compiler  (Member-01, guide: ai/README.md)
-/tests      Test cases, scenarios, evaluation scripts                  (Member-04)
-/docs       Contracts, frontend guide, progress logs                   (all)
-```
-
-## Branches and team roles
-
-| Branch | Role |
-|---|---|
-| `main` | Stable, integrated code. Changes come in only through pull requests the Team Lead has reviewed |
-| `Member-01` | Team Lead: AI/LLM layer, prompt design, code validation, integration |
-| `Member-02` | Frontend/UI: components, telemetry capture, dynamic rendering, animation |
-| `Member-03` | Backend/API: WebSocket server, scoring, request validation, configuration |
-| `Member-04` | Testing, evaluation, documentation, report and PPT |
-
-Clone with:
-
-```bash
-git clone https://github.com/Muzakkir26/AuraGen-Self-Healing-Generative-UI-via-Cognitive-Load.git
+/src        Next.js app: financial form, telemetry hook, UI components
+/server     Express API: scoring, validation, /api/heal-ui, /api/generate
+/ai         Prompt builder, Code-Gen Agent, AST validator, compiler, renderer runtime (see ai/README.md)
+/tests      Test plans, scenarios and evaluation scripts
+/docs       Interface contracts and frontend guide
 ```
 
 ## Setup
