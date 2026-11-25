@@ -1,6 +1,6 @@
 # AuraGen Interface Contracts — v0.9 (draft)
 
-Owner: Member-01 (Team Lead). These are the shared message formats between the frontend, backend, AI layer and tests. **Do not change a contract without telling the members who depend on it.** Every change bumps the version at the top of this file.
+These are the shared message formats between the frontend, backend, AI layer and tests. **Do not change a contract without updating every part that depends on it.** Every change bumps the version at the top of this file.
 
 All timestamps are milliseconds since epoch. All IDs are strings.
 
@@ -183,7 +183,7 @@ The compiler rewrites every runtime-key read `x[k]` to an own-property read (inh
 | `ProgressBar` | `current`, `total` |
 | `Card` / `Stack` | `className?`, `children` |
 
-Member-02 builds these in `/frontend`. Member-01 feeds the same list to the LLM prompt. Member-03 and Member-04 validate and test against it.
+The frontend builds these components in `/src`. The AI layer gives the same list to the LLM prompt (`ai/designSystem.js`), and the validator and tests check generated code against it.
 
 ## 8. Generate endpoint (frontend or backend → AI layer, HTTP)
 
