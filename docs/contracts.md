@@ -1,10 +1,11 @@
-# AuraGen Interface Contracts — v0.8 (draft)
+# AuraGen Interface Contracts — v0.9 (draft)
 
 Owner: Member-01 (Team Lead). These are the shared message formats between the frontend, backend, AI layer and tests. **Do not change a contract without telling the members who depend on it.** Every change bumps the version at the top of this file.
 
 All timestamps are milliseconds since epoch. All IDs are strings.
 
 **Changelog**
+- v0.9 (2026-11-25): the prompt describes a checkbox as "ticked" or "not ticked" instead of "filled" or "empty", so an unticked box (`false` / `"false"`) is no longer reported as filled. Prompt version `p-0.3` (cached results from `p-0.2` are not reused). No shapes changed.
 - v0.8 (2026-11-24): §9 states how `userInput` becomes `ui.initialValues`: checkbox text (`"true"` / `"false"`) is turned into a boolean, and a field the browser masks before sending (`tax_id`) is never seeded. `savedValue` is unchanged. No shapes changed.
 - v0.7 (2026-11-23): §6 closes sandbox escapes: banned keys in destructuring and object literals, free names limited to an allow-list, no property writes, no classes or getters/setters, `arguments` banned. `compiled` now starts with an own-key helper for runtime-key reads; the renderer contract is unchanged. Prompt version `p-0.2`.
 - v0.6 (2026-11-21): §5 states how the renderer seeds values: page values win, `initialValues` fill empty fields. Reference loader in `ai/runtime/loadComponent.js`. No shapes changed.
@@ -236,7 +237,7 @@ Reply (the `/api/telemetry` fields plus `ui` and `generation`):
 | `fieldName` is not in the form schema | 200 | `ui.fallback`, `reason: "unknown-field"` |
 | Invalid telemetry (fails `server/schemas/requestSchema.js`: negative numbers, fractional `rageClicks`, empty `fieldName`, wrong types) | 400 | none; `error` = `"<field>: <reason>"` |
 
-`userInput` only reaches the browser again through `ui.initialValues`. The LLM prompt only says whether the field is filled or empty.
+`userInput` only reaches the browser again through `ui.initialValues`. The LLM prompt only says whether the field is filled or empty (for a checkbox: ticked or not ticked, using the same rule as the seeding above).
 
 How `userInput` becomes `ui.initialValues` (`seedValue` in `server/forms/financialForm.js`):
 
