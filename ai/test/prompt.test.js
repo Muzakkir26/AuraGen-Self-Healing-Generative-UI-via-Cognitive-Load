@@ -56,6 +56,24 @@ test("typed values never reach the prompt, only filled/empty status", () => {
   assert.match(p.user, /currently: filled/);
 });
 
+test("checkbox status says ticked or not ticked, never filled for an unticked box", () => {
+  const withBox = (value) => {
+    const r = request();
+    r.frictionPoint.fieldId = "field-agree";
+    r.formSchema.fields.push({ id: "field-agree", label: "I agree", type: "checkbox", required: true, group: "legal" });
+    if (value !== undefined) r.formState.values["field-agree"] = value;
+    return buildPrompt(r).user;
+  };
+  for (const v of [true, "true", "TRUE", " on ", "1", "yes"]) {
+    assert.match(withBox(v), /currently: ticked/, JSON.stringify(v));
+  }
+  for (const v of [false, "false", "off", "0", "no", "", null, undefined]) {
+    const user = withBox(v);
+    assert.match(user, /currently: not ticked/, JSON.stringify(v));
+    assert.doesNotMatch(user, /field-agree[\s\S]*currently: filled/, JSON.stringify(v));
+  }
+});
+
 test("same request gives the same prompt (cacheable) and carries versions", () => {
   assert.deepEqual(buildPrompt(request()), buildPrompt(request()));
   const p = buildPrompt(request());
