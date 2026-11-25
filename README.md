@@ -192,5 +192,28 @@ AuraGen_Testing/
 
 ---
 
+<<<<<<< HEAD
 ## 🏆 Final QA Evaluation Verdict
 The AuraGen test suite achieves **100% test coverage** across all four operational quadrants. With **zero keystroke data loss ($\mathcal{I}_1$)**, **guaranteed anti-oscillation ($\mathcal{I}_3$)**, and a **62.2% reduction in user cognitive friction ($\mathcal{I}_2$)**, the autonomous self-healing UI architecture is fully validated and ready for production deployment.
+=======
+```bash
+npm install                 # frontend + backend
+cd ai && npm install && cd ..   # AI layer
+cp .env.example .env        # fill in values; leave OPENAI_API_KEY empty to use the mock LLM
+npm run dev                 # Next.js frontend on :3000
+node server/index.js        # backend API
+npm run test:ai             # AI layer tests
+npm run test:server         # backend trigger tests (/api/heal-ui, /api/generate)
+npm run demo:heal-ui        # end-to-end demo with the mock LLM: telemetry -> wizard -> typed value kept
+```
+
+`npm run demo:heal-ui -- --url http://localhost:3001` runs the same demo against a server that is already running (start it with `LLM_PROVIDER=mock` if the API key has no quota).
+
+Frontend details and manual test steps are in [`docs/frontend.md`](docs/frontend.md). Secrets live in a local `.env` file, which is never committed.
+
+## Security principles
+
+- All model output is treated as untrusted until the AST validator passes it.
+- Generated code may only use components from our approved library.
+- API keys stay on the server and are never sent to the browser.
+>>>>>>> origin/main

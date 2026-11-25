@@ -42,8 +42,16 @@ const BANNED_IDENTIFIERS = [
   "fetch", "XMLHttpRequest", "WebSocket", "EventSource", "Worker",
   "eval", "Function", "setTimeout", "setInterval", "setImmediate",
   "requestAnimationFrame", "queueMicrotask", "process", "require", "module",
-  "exports", "global", "Reflect", "Proxy", "importScripts",
+  "exports", "global", "Reflect", "Proxy", "importScripts", "arguments",
 ];
+
+// The only free (global) names generated code may reference, besides the approved
+// components and hooks. Anything else (Object, Math, JSON, Array, Symbol, ...) is rejected,
+// because a global held in a local variable can reach Function through reflection.
+const ALLOWED_GLOBALS = ["undefined", "NaN", "Infinity", "String", "Number", "Boolean"];
+
+// Names the compiler injects into compiled code. Generated code may not declare or use them.
+const RESERVED_PREFIX = "__auragen";
 
 // Property names that open prototype-chain escapes (e.g. x.constructor.constructor("...")).
 const BANNED_PROPERTIES = [
@@ -62,6 +70,8 @@ module.exports = {
   COMPONENT_NAMES,
   ALLOWED_HTML_ELEMENTS,
   ALLOWED_HOOKS,
+  ALLOWED_GLOBALS,
+  RESERVED_PREFIX,
   COMPONENT_PROPS,
   BANNED_IDENTIFIERS,
   BANNED_PROPERTIES,
