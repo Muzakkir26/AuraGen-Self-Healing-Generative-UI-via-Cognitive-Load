@@ -2,90 +2,397 @@
 
 > A user interface that notices when people are struggling and rebuilds itself to help them.
 
-## Problem
+## 1. Project Overview
 
-Standard user interfaces are static. When a user gets confused by a complex screen, they have to read tooltips, open a separate chatbot, or give up on the task. AI help usually sits next to the UI instead of inside it.
+AuraGen is an AI-powered self-healing user interface that dynamically adapts to a user's cognitive load. It detects interaction difficulties, calculates a real-time Cognitive Load Score, and generates simplified React interfaces to help users complete complex tasks.
 
-## What AuraGen does
+Unlike traditional interfaces, AuraGen does not simply display help messages or tooltips. It changes the interface itself to reduce user effort and improve usability.
 
-AuraGen watches how a user interacts with a complex form: cursor velocity, hesitation and rage clicks. From these signals it computes a real-time **Cognitive Load Score**. When the score crosses a threshold, an LLM generates a simplified, custom React component for the exact point where the user is stuck, for example a step-by-step wizard. The component is validated, compiled and swapped into the page live, without a refresh and without losing anything the user already typed.
+## 2. Problem Statement
 
-**Demo use case:** a user struggling with a complex financial form is moved to a conversational, step-by-step wizard that is generated on the fly.
+Standard user interfaces are static. When users become confused by complex forms or workflows, they must read tooltips, search for help, or abandon the task.
 
-## Key modules
+Traditional AI assistants generally operate separately from the interface and cannot directly simplify the screen where the user is experiencing difficulty.
 
-| Module | Tech | Purpose |
+AuraGen addresses this problem by integrating cognitive-load detection, AI-generated components, code validation and dynamic rendering into one adaptive system.
+
+## 3. Project Objectives
+
+- Detect user interaction difficulties in real time.
+- Calculate a Cognitive Load Score from interaction telemetry.
+- Identify when an interface needs simplification.
+- Generate context-aware React components using an LLM.
+- Validate generated code before execution.
+- Replace complex interfaces with simplified alternatives.
+- Preserve user-entered data during interface transitions.
+- Provide fallback interfaces when generation or validation fails.
+
+## 4. What AuraGen Does
+
+AuraGen monitors interaction signals such as cursor movement, hesitation and repeated clicks. These signals are processed by the Friction Engine to calculate a Cognitive Load Score.
+
+When the score crosses a configured threshold, the AI generation pipeline creates a simplified interface for the area where the user is experiencing difficulty.
+
+The generated component is validated, compiled and dynamically loaded into the application without a full-page refresh.
+
+**Demo use case:** A user struggling with a complex financial form is moved to a conversational, step-by-step wizard while preserving previously entered information.
+
+## 5. Key Modules
+
+| Module | Technology | Purpose |
 |---|---|---|
-| Friction Engine | React hook + WebSockets | Streams cursor, hesitation and click telemetry and computes the Cognitive Load Score |
-| Code-Gen Agent | LangChain + LLM | Prompted with our design system (Tailwind + component library) to generate pre-styled React components |
-| AST Injector | Babel + Node.js | Parses generated code into an AST, rejects unsafe or invalid code, compiles it and pushes it to the client |
-| Dynamic Renderer | Next.js + React Suspense | Loads the compiled component into the page without a refresh, with a fallback if it fails |
+| Friction Engine | React Hooks, WebSockets, Node.js | Collects interaction telemetry and calculates cognitive load |
+| Code-Gen Agent | LangChain, LLM | Generates simplified React components |
+| AST Injector | Babel, Node.js | Parses, validates and compiles generated code |
+| Dynamic Renderer | Next.js, React Suspense | Loads generated components dynamically |
+| Self-Healing Validator | Validation and repair logic | Detects invalid UI output and provides safe fallbacks |
+| Telemetry Service | Node.js | Processes interaction events and calculates scores |
 
-## Architecture (request flow)
+## 6. System Architecture
 
+```text
+Browser (Next.js)                    Server (Node.js)
+─────────────────                    ────────────────
+useTelemetry Hook
+       |
+       | telemetry.batch
+       v
+                              Friction Engine
+                                    |
+                              Cognitive Score
+                                    |
+                              Threshold Check
+                                    |
+                                    v
+                              Code-Gen Agent
+                               (LLM / Mock)
+                                    |
+                              Generated JSX
+                                    |
+                                    v
+                              AST Validator
+                                    |
+                           Parse → Validate
+                                    |
+                              Compile / Repair
+                                    |
+                                    v
+Dynamic Renderer <──────── ui.generated / ui.fallback
+(React Suspense + Error Boundary)
 ```
-Browser (Next.js)                      Server (Node.js)
-─────────────────                      ────────────────
-useTelemetry hook ──telemetry.batch──▶ Friction Engine ──score──▶ trigger?
-        ▲                                                     │ yes
-        │                                                     ▼
-        │                               Code-Gen Agent (LangChain + LLM)
-        │                                                     │ JSX source
-        │                                                     ▼
-        │                               AST Injector (Babel: parse → validate → compile)
-        │                                                     │
-Dynamic Renderer ◀────ui.generated / ui.fallback──────────────┘
-(Suspense + ErrorBoundary + Framer Motion)
+
+The message formats and API contracts are documented in `docs/contracts.md`.
+
+## 7. Repository Structure
+
+```text
+AuraGen/
+│
+├── src/
+│   ├── app/
+│   ├── components/
+│   ├── hooks/
+│   └── styles/
+│
+├── server/
+│   ├── index.js
+│   └── telemetryService.js
+│
+├── ai/
+│   ├── prompt/
+│   ├── validator/
+│   ├── compiler/
+│   ├── reports/
+│   └── README.md
+│
+├── tests/
+│
+├── Integration_Testing/
+│
+├── docs/
+│   ├── contracts.md
+│   ├── frontend.md
+│   └── technical documentation
+│
+├── package.json
+├── package-lock.json
+├── README.md
+└── .env.example
 ```
 
-The message formats between these parts are defined in [`docs/contracts.md`](docs/contracts.md).
+*Note: This is a high-level structure. Existing project folders and filenames should be retained.*
 
-## Repository layout
+## 8. Branches and Team Roles
 
-```
-/src        Next.js app: financial form, telemetry hook, UI kit, HUD   (Member-02, guide: docs/frontend.md)
-/server     Express API: scoring, validation, /api/generate, /api/heal-ui (Member-03, AI routes: Member-01)
-/ai         Prompt builder, Code-Gen Agent, Babel validator, compiler  (Member-01, guide: ai/README.md)
-/tests      Test cases, scenarios, evaluation scripts                  (Member-04)
-/docs       Contracts, frontend guide, progress logs                   (all)
-```
-
-## Branches and team roles
-
-| Branch | Role |
+| Branch | Responsibility |
 |---|---|
-| `main` | Stable, integrated code. Changes come in only through pull requests the Team Lead has reviewed |
-| `Member-01` | Team Lead: AI/LLM layer, prompt design, code validation, integration |
-| `Member-02` | Frontend/UI: components, telemetry capture, dynamic rendering, animation |
-| `Member-03` | Backend/API: WebSocket server, scoring, request validation, configuration |
-| `Member-04` | Testing, evaluation, documentation, report and PPT |
+| `main` | Stable integrated project |
+| `Member-01` | AI/LLM integration, prompt design and code validation |
+| `Member-02` | Frontend/UI, telemetry capture and dynamic rendering |
+| `Member-03` | Backend/API, WebSocket server and scoring |
+| `Member-04` | Testing, evaluation, bug reproduction, documentation and PPT |
 
-Clone with:
+Changes are integrated into `main` through reviewed pull requests.
+
+## 9. Technology Stack
+
+- **Frontend:** React, Next.js, TypeScript, Tailwind CSS
+- **Backend:** Node.js, Express
+- **Communication:** WebSockets
+- **AI integration:** LangChain and LLM/mock provider
+- **Code processing:** Babel and AST validation
+- **UI rendering:** React Suspense and Error Boundaries
+- **Testing:** Node.js test runner and project-specific integration tests
+- **Version control:** Git and GitHub
+
+## 10. Installation and Setup
+
+### Prerequisites
+
+- Node.js and npm
+- Git
+- A code editor such as Visual Studio Code
+
+### Clone the repository
 
 ```bash
 git clone https://github.com/Muzakkir26/AuraGen-Self-Healing-Generative-UI-via-Cognitive-Load.git
+
+cd AuraGen
 ```
 
-## Setup
+### Install dependencies
 
 ```bash
-npm install                 # frontend + backend
-cd ai && npm install && cd ..   # AI layer
-cp .env.example .env        # fill in values; leave OPENAI_API_KEY empty to use the mock LLM
-npm run dev                 # Next.js frontend on :3000
-node server/index.js        # backend API
-npm run test:ai             # AI layer tests
-npm run test:server         # backend trigger tests (/api/heal-ui, /api/generate)
-npm run demo:heal-ui        # end-to-end demo with the mock LLM: telemetry -> wizard -> typed value kept
+npm install
 ```
 
-`npm run demo:heal-ui -- --url http://localhost:3001` runs the same demo against a server that is already running (start it with `LLM_PROVIDER=mock` if the API key has no quota).
+If the AI layer has separate dependencies:
 
-Frontend details and manual test steps are in [`docs/frontend.md`](docs/frontend.md). Secrets live in a local `.env` file, which is never committed.
+```bash
+cd ai
+npm install
+cd ..
+```
 
-## Security principles
+### Configure environment variables
 
-- All model output is treated as untrusted until the AST validator passes it.
-- Generated code may only use components from our approved library.
-- API keys stay on the server and are never sent to the browser.
->>>>>>> origin/main
+```bash
+cp .env.example .env
+```
+
+Configure the required values in `.env`. Keep API keys private and do not commit the `.env` file.
+
+### Start the application
+
+```bash
+npm run dev
+```
+
+Start the backend in a separate terminal if it is not started automatically:
+
+```bash
+node server/index.js
+```
+
+### Run tests
+
+```bash
+npm run test:ai
+npm run test:server
+npm run test:contract
+```
+
+Run the AI audit when required:
+
+```bash
+npm run audit:ai
+```
+
+Run the healing demo if configured:
+
+```bash
+npm run demo:heal-ui
+```
+
+## 11. Cognitive Load Analysis
+
+AuraGen evaluates user interaction signals to estimate cognitive load.
+
+The system uses configured thresholds to classify the interaction state:
+
+| Cognitive Level | Score Range | Interface Behaviour |
+|---|---:|---|
+| LOW | 0–30 | Normal interface |
+| MEDIUM | 31–60 | Simplified interface |
+| HIGH | 61–80 | Minimal interface |
+| VERY HIGH | Above 80 | Critical simplified interface |
+
+The thresholds and response behaviour are configurable.
+
+## 12. Self-Healing Mechanism
+
+The self-healing process follows these steps:
+
+1. Detect interaction difficulties.
+2. Collect telemetry events.
+3. Calculate the Cognitive Load Score.
+4. Check whether the score crosses the configured threshold.
+5. Generate a simplified UI using the AI engine.
+6. Validate the generated UI schema and code.
+7. Repair invalid output when possible.
+8. Use a safe fallback if validation or repair fails.
+9. Render the new interface dynamically.
+10. Preserve the user's existing form data.
+
+## 13. Testing and Quality Assurance
+
+The Member-04 testing and evaluation work focuses on validating the functionality, reliability, responsiveness and safety of AuraGen.
+
+### Testing objectives
+
+- Verify individual modules.
+- Validate communication between frontend and backend.
+- Test AI-generated UI output.
+- Verify cognitive-load scoring.
+- Check self-healing and repair behaviour.
+- Identify and reproduce bugs.
+- Evaluate responsive UI behaviour.
+- Verify safe fallback behaviour.
+
+### Testing phases
+
+**Phase 1 — Test Planning**
+
+Define testing objectives, scope, test environment, scenarios and expected results.
+
+**Phase 2 — Test Case Design**
+
+Prepare test cases for telemetry, scoring, AI generation, validation, rendering and error handling.
+
+**Phase 3 — Functional Testing**
+
+Verify that individual features work according to the expected requirements.
+
+**Phase 4 — Integration Testing**
+
+Test communication between the frontend, backend, telemetry service and AI modules.
+
+**Phase 5 — Cognitive Load Testing**
+
+Check the system's response to different interaction patterns and cognitive-load levels.
+
+**Phase 6 — Self-Healing Testing**
+
+Verify generated UI validation, repair behaviour and fallback handling.
+
+**Phase 7 — UI and Responsive Testing**
+
+Check layout consistency, usability and responsiveness across screen sizes.
+
+**Phase 8 — Bug Reproduction**
+
+Reproduce identified issues using documented steps and input conditions.
+
+**Phase 9 — Regression Testing**
+
+Re-run relevant tests after code changes to ensure existing features remain functional.
+
+**Phase 10 — Evaluation and Documentation**
+
+Record results, test evidence, observations and recommendations.
+
+## 14. Automated Testing Results
+
+The following results were recorded during the project testing process:
+
+| Test Area | Recorded Result |
+|---|---|
+| Backend tests | 24 passed, 0 failed |
+| AI tests | 65 passed, 0 failed |
+| Integration test | 2 passed |
+| Contract tests | Passed |
+| AI audit | 21 generations |
+| First-attempt AI audit success | 100% |
+| Success after repair | 100% |
+| AI audit p95 | 25 ms |
+
+**Important:** These are recorded results from the executed test runs. They should not be interpreted as proof that every possible production scenario has been tested.
+
+### AI Audit Reports
+
+```text
+ai/reports/
+├── audit-mock-2026-11-26.json
+└── audit-mock-2026-11-26.md
+```
+
+## 15. Bug Reproduction and Fix Verification
+
+The testing process includes:
+
+- Recording the bug description.
+- Identifying the affected module.
+- Documenting steps to reproduce.
+- Recording expected and actual results.
+- Identifying the root cause.
+- Applying the correction.
+- Re-running the affected test.
+- Recording the final verification result.
+
+### Example issue: Contact Form Textarea
+
+**Issue:** The `Input` component did not support the `as="textarea"` property.
+
+**Correction:** Replaced the unsupported component usage with a native HTML `<textarea>` element.
+
+**Verification:** The project build and TypeScript checks were run after the correction.
+
+## 16. Quality Invariants
+
+| Quality Invariant | Expected Guarantee |
+|---|---|
+| Code validation | Generated code must pass validation before execution |
+| Approved components | Generated UI must follow the approved component rules |
+| Data preservation | Existing user input should remain available during UI transitions |
+| Safe fallback | Invalid generated UI should not break the application |
+| API security | Secret keys must remain on the server |
+
+## 17. Security Principles
+
+- All AI-generated output is treated as untrusted.
+- Generated code must pass validation before use.
+- Only approved components and permitted operations should be allowed.
+- API keys must remain on the server.
+- Environment files containing secrets must not be committed.
+- Invalid generated output must be rejected or replaced with a safe fallback.
+
+## 18. Expected Outcomes
+
+AuraGen aims to provide:
+
+- Reduced user confusion when working with complex interfaces.
+- Adaptive and context-aware user experiences.
+- Faster completion of complex forms.
+- Reduced dependence on external help.
+- Improved accessibility and usability.
+- Safer AI-generated interface integration.
+
+## 19. Future Enhancements
+
+- More accurate cognitive-load estimation.
+- Additional adaptive UI patterns.
+- Improved support for different LLM providers.
+- Expanded automated security testing.
+- Real-user usability evaluation.
+- Enhanced telemetry analytics and reporting.
+
+## 20. Final QA Evaluation
+
+AuraGen demonstrates an approach to adaptive user interfaces by combining telemetry-based cognitive-load estimation with AI-generated React components and self-healing validation.
+
+The testing work covers backend functionality, AI generation, integration, contract validation and error handling. Further real-user testing and production-scale security evaluation are recommended before deployment.
+
+**Project:** AuraGen — Self-Healing Generative UI via Cognitive Load
+**Testing and Documentation:** Member-04
+**Repository:** [GitHub — AuraGen](https://github.com/Muzakkir26/AuraGen-Self-Healing-Generative-UI-via-Cognitive-Load)
