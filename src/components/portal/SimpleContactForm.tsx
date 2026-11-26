@@ -63,15 +63,28 @@ export function SimpleContactForm({ onSubmit }: SimpleContactFormProps) {
             onChange={e => handleChange('email', e.target.value)}
             required
           />
-          <Input
-            label="Message"
-            as="textarea"
-            rows={4}
-            placeholder="Your message"
-            value={formData.message}
-            onChange={e => handleChange('message', e.target.value)}
-            required
-          />
+          <CardBody className="grid gap-3">
+  <Input label="Name" placeholder="Your name" value={formData.name}
+    onChange={e => handleChange('name', e.target.value)} required />
+
+  <Input label="Email" type="email" placeholder="you@example.com"
+    value={formData.email} onChange={e => handleChange('email', e.target.value)} required />
+
+  <div className="space-y-1">
+    <label className="text-sm font-medium" htmlFor="message">
+      Message
+    </label>
+    <textarea
+      id="message"
+      rows={4}
+      placeholder="Your message"
+      value={formData.message}
+      onChange={e => handleChange('message', e.target.value)}
+      required
+      className="w-full rounded-md border border-gray-300 p-3"
+    />
+  </div>
+</CardBody>
         </CardBody>
         <CardFooter className="flex justify-end">
           <Button type="submit" variant="primary" size="sm">

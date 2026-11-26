@@ -1,23 +1,33 @@
 // Calculates cognitive load score (0 to 100) from user behavior metrics
+
+
 function calculateScore(mouseSpeed, pauseTime, rageClicks) {
-  let score = 0;
+  let speedComponent = 0;
 
-  if (mouseSpeed > 100) {
-    score = score + 30;
+  if (mouseSpeed >= 350) {
+    speedComponent = 15;
+  } else if (mouseSpeed >= 100) {
+    speedComponent = 10;
+  } else if (mouseSpeed >= 20) {
+    speedComponent = 5;
   }
 
-  if (pauseTime > 4) {
-    score = score + 40;
-  }
+  const pauseComponent = Math.min(
+    35,
+    Math.floor(Math.max(0, pauseTime)) * 7
+  );
 
-  if (rageClicks >= 3) {
-    score = score + 30;
-  }
+  const rageComponent = Math.min(
+    40,
+    Math.max(0, rageClicks) * 10
+  );
 
-  return score;
+  return Math.min(
+    100,
+    Math.max(0, speedComponent + pauseComponent + rageComponent)
+  );
 }
 
-// Validates incoming telemetry data from frontend
 function isDataValid(data) {
   if (!data) {
     return { valid: false, error: "No data received" };
@@ -42,4 +52,7 @@ function isDataValid(data) {
   return { valid: true, error: null };
 }
 
-module.exports = { calculateScore, isDataValid };
+module.exports = {
+  calculateScore,
+  isDataValid
+};
