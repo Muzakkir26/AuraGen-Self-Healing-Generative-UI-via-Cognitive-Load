@@ -7,15 +7,16 @@
  * LLM our design system and asks for one safe, pre-styled React component.
  *
  * Privacy: what the user typed is NEVER put in the prompt. The LLM only learns whether each
- * field is filled or empty. The real values reach the generated component at runtime through
- * the `values` prop, so typed data is preserved without ever leaving our server.
+ * field is filled or empty (ticked or not ticked, for a checkbox). The real values reach the
+ * generated component at runtime through the `values` prop, so typed data is preserved without
+ * ever leaving our server.
  */
 
 const fs = require("node:fs");
 const path = require("node:path");
 const ds = require("../designSystem");
 
-const PROMPT_VERSION = "p-0.2";
+const PROMPT_VERSION = "p-0.3";
 const MAX_TEXT = 200; // Cap on any schema string we copy into the prompt.
 
 const FEW_SHOT_EXAMPLE = fs.readFileSync(path.join(__dirname, "..", "examples", "PanWizard.jsx"), "utf8").trim();
@@ -86,11 +87,21 @@ function describeSignals(signals = {}) {
   return parts.length ? parts.join("; ") : "showed signs of confusion";
 }
 
+// A checkbox value can arrive as a boolean or as text ("true" / "false" from the form), and the
+// text "false" is non-empty, so checkboxes get their own status instead of filled/empty.
+const TICKED = ["true", "on", "1", "yes"];
+
+function fieldStatus(field, v) {
+  if (field.type === "checkbox") {
+    const ticked = v === true || (typeof v === "string" && TICKED.includes(v.trim().toLowerCase()));
+    return ticked ? "ticked" : "not ticked";
+  }
+  return v !== undefined && v !== null && String(v) !== "" ? "filled" : "empty";
+}
+
 function describeField(field, formState) {
   const values = (formState && formState.values) || {};
   const errors = (formState && formState.errors) || {};
-  const v = values[field.id];
-  const filled = v !== undefined && v !== null && String(v) !== "";
   const lines = [
     `- id: ${clean(field.id)}`,
     `  label: ${clean(field.label)}`,
@@ -99,7 +110,7 @@ function describeField(field, formState) {
   if (field.pattern) lines.push(`  pattern: ${clean(field.pattern)}`);
   if (field.options) lines.push(`  options: ${clean(JSON.stringify(field.options))}`);
   if (field.help) lines.push(`  help: ${clean(field.help)}`);
-  lines.push(`  currently: ${filled ? "filled" : "empty"}${errors[field.id] ? `, error "${clean(errors[field.id])}"` : ""}`);
+  lines.push(`  currently: ${fieldStatus(field, values[field.id])}${errors[field.id] ? `, error "${clean(errors[field.id])}"` : ""}`);
   return lines.join("\n");
 }
 
