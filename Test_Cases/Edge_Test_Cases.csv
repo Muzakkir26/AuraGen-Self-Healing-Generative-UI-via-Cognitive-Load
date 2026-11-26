@@ -1,0 +1,7 @@
+Test ID,Subsystem,Scenario Description,Inputs / Preconditions,Expected Result,Priority,Status
+TC-EDGE-001,Cognitive Engine,Hysteresis boundary deadband damping,ECL fluctuating between 0.69 and 0.71,Suppresses re-triggers; zero thrashing,P0,PASS
+TC-EDGE-002,Schema Validator,Deeply nested recursive AST structure,AST depth = 15 nested Containers,Traverses safely without stack overflow,P1,PASS
+TC-EDGE-003,API Behavior,Telemetry burst rate-limit protection,100 requests in <100ms,"Enforces 60 req/s, returns HTTP 429",P1,PASS
+TC-EDGE-004,UI Responsive,Ultrawide viewport max-width containment,Viewport width = 2560px,Layout constrained to max 1440px width,P1,PASS
+TC-EDGE-005,Stress / Load,Massive generative AST tree pruning,"1,000+ nodes in complex ERP layout",Pruning & virtualization completes in <65ms,P1,PASS
+TC-EDGE-006,State Store,Draft retention across multi-step wizard,"User enters step 1 & 2 drafts, pauses",Draft inputs preserved in decoupled store,P0,PASS

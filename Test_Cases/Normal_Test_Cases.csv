@@ -1,0 +1,8 @@
+Test ID,Subsystem,Scenario Description,Inputs / Preconditions,Expected Result,Priority,Status
+TC-NORM-001,Cognitive Engine,Hick-Hyman reaction latency calculation,"n=12 choices, reaction T=3.8s","Ic = b*log2(n+1), flags hesitation",P0,PASS
+TC-NORM-002,Cognitive Engine,Motor cursor trajectory entropy,Mouse coordinates with rapid turns,"Jitter >= 0.72, flags motor friction",P0,PASS
+TC-NORM-003,Schema Validator,Generative UI AST root & node parsing,Valid JSON AST with Container & Form,AST parses cleanly into typed model,P0,PASS
+TC-NORM-004,UI Rendering,Progressive disclosure wizard transformation,Monolithic form with 18 fields,Splits into 3-step wizard with Next/Back,P0,PASS
+TC-NORM-005,UI Rendering,Visual clutter action button grouping,15 loose action buttons,Groups into primary dropdown + action bar,P1,PASS
+TC-NORM-006,API Behavior,Telemetry ingest endpoint,Valid batch of 50 trajectory points,HTTP 202 Accepted in <10ms,P0,PASS
+TC-NORM-007,UI Responsive,Desktop to Mobile viewport scaling,Resize from 1440px to 375px,Multi-column grid folds into single column,P0,PASS

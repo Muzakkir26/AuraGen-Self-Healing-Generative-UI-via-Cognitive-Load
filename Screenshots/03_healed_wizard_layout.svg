@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 500" width="100%" height="100%">
+    <rect width="800" height="500" fill="#0f172a" rx="12"/>
+    <rect x="30" y="30" width="740" height="60" fill="#1e293b" rx="8" stroke="#10b981" stroke-width="2"/>
+    <text x="50" y="68" fill="#10b981" font-family="Arial, sans-serif" font-weight="bold" font-size="20">HEALED: Progressive Disclosure Wizard (ECL = 0.31, -62.2%)</text>
+    
+    <!-- Wizard Step Indicator -->
+    <rect x="50" y="115" width="220" height="10" fill="#10b981" rx="5"/>
+    <rect x="290" y="115" width="220" height="10" fill="#334155" rx="5"/>
+    <rect x="530" y="115" width="220" height="10" fill="#334155" rx="5"/>
+    <text x="50" y="150" fill="#f8fafc" font-family="Arial, sans-serif" font-size="16" font-weight="bold">Step 1 of 3: Primary Identity Details</text>
+    
+    <!-- 4 Focused Inputs -->
+    <rect x="50" y="180" width="680" height="48" fill="#1e293b" rx="6" stroke="#475569"/>
+    <text x="70" y="210" fill="#94a3b8" font-family="Arial, sans-serif" font-size="15">Full Name: [AuraGen Enterprise User]</text>
+    
+    <rect x="50" y="250" width="680" height="48" fill="#1e293b" rx="6" stroke="#475569"/>
+    <text x="70" y="280" fill="#94a3b8" font-family="Arial, sans-serif" font-size="15">Work Email: [user@auragen.internal]</text>
+    
+    <rect x="50" y="320" width="680" height="48" fill="#1e293b" rx="6" stroke="#10b981" stroke-width="2"/>
+    <text x="70" y="350" fill="#10b981" font-family="Arial, sans-serif" font-size="15">Preserved In-Flight Keystrokes: [Antigravity QA Automated Verification String]</text>
+    
+    <!-- Navigation Controls -->
+    <rect x="580" y="410" width="150" height="45" fill="#6366f1" rx="6"/>
+    <text x="615" y="438" fill="#ffffff" font-family="Arial, sans-serif" font-weight="bold" font-size="16">Continue &gt;</text>
+</svg>

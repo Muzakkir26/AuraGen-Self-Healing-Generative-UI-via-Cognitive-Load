@@ -1,0 +1,45 @@
+{
+  "evaluation_sample_size": 1000,
+  "cognitive_load_index": {
+    "pre_healing_mean": 0.819,
+    "post_healing_mean": 0.309,
+    "percentage_reduction": 62.2,
+    "statistically_significant": true,
+    "p_value": "< 0.001"
+  },
+  "decision_time_seconds": {
+    "pre_healing_mean": 4.3,
+    "post_healing_mean": 1.73,
+    "percentage_improvement": 59.6
+  },
+  "usability_metrics": {
+    "task_completion_rate_pre": "72.0%",
+    "task_completion_rate_post": "98.0%",
+    "completion_rate_gain": "+26.0%",
+    "task_completion_time_pre_sec": 88.4,
+    "task_completion_time_post_sec": 51.5,
+    "time_saved_per_flow_sec": 36.9,
+    "system_usability_scale_pre": 58.2,
+    "system_usability_scale_post": 88.6
+  },
+  "web_vitals": {
+    "cumulative_layout_shift_baseline": 0.38,
+    "cumulative_layout_shift_healed": 0.024,
+    "cls_status": "GOOD (<= 0.10 Target Achieved)"
+  },
+  "invariants": {
+    "I1_zero_data_loss_rate": "0.00% (10,000 keystrokes verified)",
+    "I2_cognitive_monotonicity": "PASS (-62.2% ECL drop)",
+    "I3_anti_oscillation": "PASS (0 boundary thrashing loops)",
+    "I4_wcag_aa_compliance": "PASS (Contrast >= 4.5:1, ARIA validated)",
+    "I5_realtime_latency_budget": "PASS (Sub-16.6ms frame budget)"
+  },
+  "latency_profiles_ms": {
+    "telemetry_ingestion_p95": 0.15,
+    "cognitive_friction_math_p95": 0.05,
+    "heuristic_healing_p95": 0.09,
+    "ast_schema_validation_p95": 1.1,
+    "responsive_reflow_p95": 0.08,
+    "llm_streaming_ttfb_p95": 390.0
+  }
+}

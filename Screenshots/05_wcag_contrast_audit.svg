@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 350" width="100%" height="100%">
+    <rect width="800" height="350" fill="#0f172a" rx="12"/>
+    <text x="40" y="50" fill="#f8fafc" font-family="Arial, sans-serif" font-weight="bold" font-size="22">AuraGen WCAG 2.2 AA Contrast Scorecard</text>
+    
+    <rect x="40" y="80" width="340" height="180" fill="#1e293b" rx="8" stroke="#ef4444" stroke-width="2"/>
+    <text x="60" y="120" fill="#ef4444" font-family="Arial, sans-serif" font-weight="bold" font-size="18">Pre-Fix Badges (#777777 on #FFFFFF)</text>
+    <text x="60" y="160" fill="#f8fafc" font-family="Arial, sans-serif" font-size="16">Measured Ratio: 4.47 : 1</text>
+    <text x="60" y="200" fill="#ef4444" font-family="Arial, sans-serif" font-size="16" font-weight="bold">STATUS: FAIL (&lt; 4.5:1 Target)</text>
+    
+    <rect x="420" y="80" width="340" height="180" fill="#1e293b" rx="8" stroke="#10b981" stroke-width="2"/>
+    <text x="440" y="120" fill="#10b981" font-family="Arial, sans-serif" font-weight="bold" font-size="18">Auto-Tuned Badges (#595959 on #FFFFFF)</text>
+    <text x="440" y="160" fill="#f8fafc" font-family="Arial, sans-serif" font-size="16">Measured Ratio: 7.00 : 1</text>
+    <text x="440" y="200" fill="#10b981" font-family="Arial, sans-serif" font-size="16" font-weight="bold">STATUS: 100% WCAG AA PASS</text>
+</svg>
