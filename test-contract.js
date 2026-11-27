@@ -61,7 +61,8 @@ function computeScore(mouseSpeed, pauseTime, rageClicks) {
   const rageComponent = Math.min(40, Math.max(0, rageClicks) * 10);
   const rawScore = speedComponent + pauseComponent + rageComponent;
   const score = Math.min(100, Math.max(0, Math.round(rawScore)));
-  const triggerAI = score >= 70 || rageClicks >= 3 || pauseTime >= 5;
+  // Same rule as the backend (server/telemetryService.js, /api/heal-ui): the score alone decides.
+  const triggerAI = score >= 70;
 
   return { score, triggerAI };
 }

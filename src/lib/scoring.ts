@@ -120,8 +120,8 @@ export function computeCognitiveScore(mouseSpeed: number, pauseTime: number, rag
   const rawScore = speedComponent + pauseComponent + rageComponent;
   const score = Math.min(100, Math.max(0, Math.round(rawScore)));
 
-  // Trigger threshold: score >= 70 or rageClicks >= 3 or pauseTime >= 5
-  const triggerAI = score >= 70 || rageClicks >= 3 || pauseTime >= 5;
+  // Same rule as the backend (server/telemetryService.js, /api/heal-ui): the score alone decides.
+  const triggerAI = score >= 70;
 
   return { score, triggerAI };
 }

@@ -195,14 +195,14 @@ Start the backend in a separate terminal (port 3001). `LLM_PROVIDER=mock` needs 
 npm run server
 ```
 
-Open http://localhost:3000, focus a field and hesitate (or use the debug simulation with `?debug=true`). When the score reaches 70, the page calls `/api/heal-ui` and shows the generated step-by-step help under the alert. Values typed in the help are copied back into the form.
+Open http://localhost:3000, type in a field (e.g. Gross Annual Operating Income), keep still for about 5 seconds, then click quickly 4 or more times on the same spot. A pause alone gives at most 35 points, so it takes pause plus rage clicks to reach 70. With `?debug=true`, the HUD's **Send Contract Spec** button sends the contract example (score 85) in one click. At 70 or more the page calls `/api/heal-ui` and shows the generated step-by-step help under the alert. Press **Done** and the values from the help are copied back into the form.
 
 ### Run tests
 
 ```bash
 npm run test:ai       # AI layer: validator, prompt, agent, runtime
 npm run test:server   # backend routes
-npm test              # frontend components (jest)
+npm test              # frontend components and the telemetry hook (jest)
 npm run test:contract
 npm run test:all      # the first three together
 ```

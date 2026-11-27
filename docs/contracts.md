@@ -1,10 +1,11 @@
-# AuraGen Interface Contracts — v1.0
+# AuraGen Interface Contracts — v1.1
 
 These are the shared message formats between the frontend, backend, AI layer and tests. **Do not change a contract without updating every part that depends on it.** Every change bumps the version at the top of this file.
 
 All timestamps are milliseconds since epoch. All IDs are strings.
 
 **Changelog**
+- v1.1 (2026-11-27): one trigger rule everywhere: `triggerAI` is `score >= 70` in the frontend (`src/lib/scoring.ts`) as well as the backend. The frontend used to also trigger on 3+ rage clicks or a 5 s pause alone, which `/api/heal-ui` then declined. The page sends `/api/heal-ui` the exact payload that was scored, and shows the help panel if a reply has no `ui`. No shapes changed.
 - v1.0 (2026-11-27): the frontend is wired end to end. When `/api/telemetry` returns `triggerAI`, the page sends the same live payload to §9 `/api/heal-ui` (URL from `NEXT_PUBLIC_HEAL_UI_URL`, default `http://localhost:3001/api/heal-ui`) and mounts `ui` with `src/components/DynamicRenderer.tsx`. The renderer loads `compiled` through `ai/runtime/loadComponent.js` with the §7 components from `src/components/generated/approvedComponents.tsx`. It shows a static help panel on `ui.fallback` or on a load or render error. §9 example score corrected to 85 (both scoring formulas now agree). No shapes changed.
 - v0.9 (2026-11-25): the prompt describes a checkbox as "ticked" or "not ticked" instead of "filled" or "empty", so an unticked box (`false` / `"false"`) is no longer reported as filled. Prompt version `p-0.3` (cached results from `p-0.2` are not reused). No shapes changed.
 - v0.8 (2026-11-24): §9 states how `userInput` becomes `ui.initialValues`: checkbox text (`"true"` / `"false"`) is turned into a boolean, and a field the browser masks before sending (`tax_id`) is never seeded. `savedValue` is unchanged. No shapes changed.
