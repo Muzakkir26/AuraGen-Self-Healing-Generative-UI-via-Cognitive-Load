@@ -35,18 +35,13 @@ function FieldShell({ id, label, help, error, children }: FieldBase & Children &
 
 const asText = (v: unknown) => (v === undefined || v === null ? '' : String(v));
 
-export function Wizard({ onSubmit, children }: Children & { onSubmit?: () => void }) {
+// A div, not a <form>: the wizard is shown inside the portal page, whose global styles target
+// `main form > div`, and generated code calls onSubmit() from its own Done button anyway.
+export function Wizard({ children }: Children & { onSubmit?: () => void }) {
   return (
-    <form
-      data-testid="generated-wizard"
-      className="flex flex-col gap-4"
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSubmit?.();
-      }}
-    >
+    <div role="form" aria-label="Guided help" data-testid="generated-wizard" className="flex flex-col gap-4">
       {children}
-    </form>
+    </div>
   );
 }
 

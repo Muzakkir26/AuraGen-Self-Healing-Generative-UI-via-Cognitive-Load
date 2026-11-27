@@ -51,7 +51,7 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
 
   // Latest value of every field the user has touched (kept in the browser; used to seed the healed UI).
   const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
-  // The payload that produced the latest response, passed to onTriggerAI for the /api/heal-ui call.
+  // The latest payload sent over WebSocket (replies there don't carry their request).
   const lastPayloadRef = useRef<TelemetryPayload | null>(null);
 
   // States
@@ -93,9 +93,18 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
     activeInputRef.current = activeUserInput;
   }, [activeFieldName, activeUserInput]);
 
+  // Latest onTriggerAI without making the callbacks below change on every render. If they changed,
+  // the 1 s hesitation timer would be restarted by every 0.8 s telemetry reply and never tick.
+  const onTriggerAIRef = useRef(onTriggerAI);
+  useEffect(() => {
+    onTriggerAIRef.current = onTriggerAI;
+  }, [onTriggerAI]);
+
   // Handle incoming response from either WebSocket or HTTP
   const handleIncomingResponse = useCallback(
-    (data: TelemetryResponse) => {
+    // `sentPayload` is the request this reply answers. The stream sends every 0.8 s, so a newer,
+    // calmer payload may already be in flight; the trigger must use the one that was scored.
+    (data: TelemetryResponse, sentPayload?: TelemetryPayload | null) => {
       setLastResponse(data);
       setLastResponseTime(new Date().toLocaleTimeString());
 
@@ -106,10 +115,10 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
       if (data.triggerAI && !hasTriggeredRef.current) {
         hasTriggeredRef.current = true;
         setIsTriggered(true);
-        onTriggerAI?.(data, lastPayloadRef.current);
+        onTriggerAIRef.current?.(data, sentPayload ?? lastPayloadRef.current);
       }
     },
-    [onTriggerAI]
+    []
   );
 
   // 1. WebSocket Lifecycle Management
@@ -188,9 +197,9 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
       options: { isSimulation?: boolean } = {}
     ): Promise<TelemetryResponse | null> => {
       const payload: TelemetryPayload = {
-        mouseSpeed: Math.round(overridePayload?.mouseSpeed ?? mouseSpeed),
-        pauseTime: Math.round(overridePayload?.pauseTime ?? pauseTime),
-        rageClicks: overridePayload?.rageClicks ?? rageClicks,
+        mouseSpeed: Math.round(overridePayload?.mouseSpeed ?? mouseSpeedRef.current),
+        pauseTime: Math.round(overridePayload?.pauseTime ?? pauseTimeRef.current),
+        rageClicks: overridePayload?.rageClicks ?? rageClicksRef.current,
         fieldName: overridePayload?.fieldName ?? activeFieldRef.current ?? '',
         userInput: overridePayload?.userInput ?? activeInputRef.current ?? '',
       };
@@ -233,7 +242,7 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
         }
 
         const data: TelemetryResponse = await res.json();
-        handleIncomingResponse(data);
+        handleIncomingResponse(data, payload);
         setConnectionStatus((prev) => (prev === 'connected' ? 'connected' : 'http-fallback'));
         setConnectionError(null);
         return data;
@@ -248,7 +257,7 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
         }
       }
     },
-    [mouseSpeed, pauseTime, rageClicks, backendUrl, handleIncomingResponse]
+    [backendUrl, handleIncomingResponse]
   );
 
   useEffect(() => {

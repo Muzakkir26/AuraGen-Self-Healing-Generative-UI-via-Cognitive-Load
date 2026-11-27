@@ -27,6 +27,8 @@ export default function AuraGenPortalPage() {
   // Healed UI from POST /api/heal-ui and the values the user completed in it.
   const [healUi, setHealUi] = useState<UiMessage | null>(null);
   const [appliedValues, setAppliedValues] = useState<FieldValues | null>(null);
+  // Score that caused the trigger (the live score keeps moving and decays afterwards).
+  const [triggerScore, setTriggerScore] = useState<number | null>(null);
 
   // Check URL query param ?debug=true or NEXT_PUBLIC_SHOW_DEBUG=true
   useEffect(() => {
@@ -64,11 +66,15 @@ export default function AuraGenPortalPage() {
     streamingIntervalMs: 800,
     frictionThreshold: 70,
     onTriggerAI: (response, payload) => {
+      setTriggerScore(response.score);
       // Ask the backend for a generated wizard for the stuck field, using the live telemetry.
       if (payload) {
         requestHealedUi(payload)
           .then((reply) => {
-            if (reply.ui) setHealUi(reply.ui);
+            // The alert is already showing, so always give the user something: the wizard or the help panel.
+            setHealUi(
+              reply.ui ?? { type: 'ui.fallback', sessionId: 'local', targetFieldId: payload.fieldName, reason: 'no-guided-help' }
+            );
           })
           .catch((err) => {
             console.warn('heal-ui unavailable, showing the static help', err);
@@ -195,7 +201,7 @@ export default function AuraGenPortalPage() {
             isTriggered={isTriggered}
             stuckField={stuckField}
             savedValue={savedValue}
-            cognitiveScore={cognitiveScore}
+            cognitiveScore={isTriggered && triggerScore !== null ? triggerScore : cognitiveScore}
             onReset={() => {
               setHealUi(null);
               resetTelemetry();
