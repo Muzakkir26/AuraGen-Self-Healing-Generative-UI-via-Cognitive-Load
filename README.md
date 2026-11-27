@@ -189,18 +189,22 @@ Configure the required values in `.env`. Keep API keys private and do not commit
 npm run dev
 ```
 
-Start the backend in a separate terminal if it is not started automatically:
+Start the backend in a separate terminal (port 3001). `LLM_PROVIDER=mock` needs no API key:
 
 ```bash
-node server/index.js
+npm run server
 ```
+
+Open http://localhost:3000, focus a field and hesitate (or use the debug simulation with `?debug=true`). When the score reaches 70, the page calls `/api/heal-ui` and shows the generated step-by-step help under the alert. Values typed in the help are copied back into the form.
 
 ### Run tests
 
 ```bash
-npm run test:ai
-npm run test:server
+npm run test:ai       # AI layer: validator, prompt, agent, runtime
+npm run test:server   # backend routes
+npm test              # frontend components (jest)
 npm run test:contract
+npm run test:all      # the first three together
 ```
 
 Run the AI audit when required:

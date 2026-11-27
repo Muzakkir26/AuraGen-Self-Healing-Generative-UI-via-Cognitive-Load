@@ -47,7 +47,7 @@ function post(path, body, headers) {
   });
 }
 
-// The exact payload the frontend hook sends today (src/hooks/useCognitiveTelemetry.ts).
+// The contract example payload (docs/contracts.md §9); the backend scores it 85.
 var STRUGGLING = { mouseSpeed: 120, pauseTime: 5, rageClicks: 4, fieldName: "annual_income", userInput: "50000" };
 var CALM = { mouseSpeed: 20, pauseTime: 1, rageClicks: 0, fieldName: "annual_income", userInput: "" };
 
@@ -55,7 +55,7 @@ test("high score triggers generation and returns a mountable ui.generated messag
   var res = await post("/api/heal-ui", Object.assign({ sessionId: "s_high" }, STRUGGLING));
   assert.equal(res.status, 200);
   var body = await res.json();
-  assert.equal(body.score, 100);
+  assert.equal(body.score, 85);
   assert.equal(body.triggerAI, true);
   assert.equal(body.stuckField, "annual_income");
   assert.equal(body.ui.type, "ui.generated");

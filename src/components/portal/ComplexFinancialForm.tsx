@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card, CardHeader, CardBody, CardFooter } from '@/components/ui/Card';
@@ -28,6 +28,10 @@ interface ComplexFinancialFormProps {
   cognitiveScore: number;
   onReset: () => void;
   isDebug?: boolean;
+  /** Guided help generated for the stuck field, shown under the friction banner. */
+  healedUi?: React.ReactNode;
+  /** Values the user completed in the guided help; merged into the form when they change. */
+  appliedValues?: Record<string, string | boolean | number> | null;
 }
 
 export function ComplexFinancialForm({
@@ -40,6 +44,8 @@ export function ComplexFinancialForm({
   cognitiveScore,
   onReset,
   isDebug = false,
+  healedUi,
+  appliedValues,
 }: ComplexFinancialFormProps) {
   // Empty initial values with placeholders as requested (no hardcoded prefilled values)
   const [formData, setFormData] = useState({
@@ -56,6 +62,20 @@ export function ComplexFinancialForm({
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [submitError, setSubmitError] = useState<string>('');
   const [taxIdError, setTaxIdError] = useState<string>('');
+
+  // Copy values completed in the guided help back into the form (known fields only).
+  useEffect(() => {
+    if (!appliedValues) return;
+    setFormData((prev) => {
+      const next = { ...prev };
+      for (const [key, value] of Object.entries(appliedValues)) {
+        if (!(key in next)) continue;
+        if (key === 'covenant_compliance') next.covenant_compliance = value === true || value === 'true';
+        else (next as Record<string, string | boolean>)[key] = String(value ?? '');
+      }
+      return next;
+    });
+  }, [appliedValues]);
 
   const handleInputChange = (field: keyof typeof formData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -161,6 +181,8 @@ export function ComplexFinancialForm({
           </div>
         </div>
       )}
+
+      {healedUi}
 
       {isSubmitted ? (
         <Card className="border-emerald-200 bg-emerald-50/50 p-8 text-center space-y-4">

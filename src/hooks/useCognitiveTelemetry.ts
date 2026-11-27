@@ -11,7 +11,8 @@ interface UseCognitiveTelemetryOptions {
   webSocketUrl?: string;
   enableWebSocket?: boolean;
   streamingIntervalMs?: number; // 500 to 1000ms
-  onTriggerAI?: (response: TelemetryResponse) => void;
+  /** Called once per trigger with the score response and the live payload that caused it. */
+  onTriggerAI?: (response: TelemetryResponse, payload: TelemetryPayload | null) => void;
   frictionThreshold?: number; // default: 70
 }
 
@@ -48,31 +49,10 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
   const [cognitiveScore, setCognitiveScore] = useState<number>(0);
   const [isTransmitting, setIsTransmitting] = useState<boolean>(false);
 
-  // Send user confusion data to backend for healing UI
-  useEffect(() => {
-    const payload = {
-      mouseSpeed: 120,
-      pauseTime: 5,
-      rageClicks: 4,
-      fieldName: 'annual_income',
-      userInput: '50000',
-    };
-    fetch('http://localhost:3001/api/heal-ui', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    })
-      .then((res) => {
-        if (!res.ok) {
-          console.error('Failed to send confusion data', res.status);
-        }
-        return res.json();
-      })
-      .then((data) => {
-        console.log('Healing response:', data);
-      })
-      .catch((err) => console.error('Error sending confusion data', err));
-  }, []);
+  // Latest value of every field the user has touched (kept in the browser; used to seed the healed UI).
+  const [fieldValues, setFieldValues] = useState<Record<string, string>>({});
+  // The payload that produced the latest response, passed to onTriggerAI for the /api/heal-ui call.
+  const lastPayloadRef = useRef<TelemetryPayload | null>(null);
 
   // States
   useEffect(() => {
@@ -126,7 +106,7 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
       if (data.triggerAI && !hasTriggeredRef.current) {
         hasTriggeredRef.current = true;
         setIsTriggered(true);
-        onTriggerAI?.(data);
+        onTriggerAI?.(data, lastPayloadRef.current);
       }
     },
     [onTriggerAI]
@@ -220,6 +200,7 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
         const last4 = digits.slice(-4);
         payload.userInput = `XX-XXX${last4}`;
       }
+      lastPayloadRef.current = payload;
 
       // 1. If WebSocket is connected, transmit ONLY via WebSocket
       if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
@@ -400,6 +381,7 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
     lastFieldActionTimeRef.current = Date.now();
     setActiveFieldName(fieldName);
     setActiveUserInput(value);
+    setFieldValues((prev) => ({ ...prev, [fieldName]: value }));
     setPauseTime(0); // Typing resets hesitation on this field
   }, []);
 
@@ -474,6 +456,7 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
     rageClicks,
     activeFieldName,
     activeUserInput,
+    fieldValues,
     cognitiveScore,
     isTransmitting,
     isSimulating,

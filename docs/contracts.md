@@ -1,10 +1,11 @@
-# AuraGen Interface Contracts — v0.9 (draft)
+# AuraGen Interface Contracts — v1.0
 
 These are the shared message formats between the frontend, backend, AI layer and tests. **Do not change a contract without updating every part that depends on it.** Every change bumps the version at the top of this file.
 
 All timestamps are milliseconds since epoch. All IDs are strings.
 
 **Changelog**
+- v1.0 (2026-11-27): the frontend is wired end to end. When `/api/telemetry` returns `triggerAI`, the page sends the same live payload to §9 `/api/heal-ui` (URL from `NEXT_PUBLIC_HEAL_UI_URL`, default `http://localhost:3001/api/heal-ui`) and mounts `ui` with `src/components/DynamicRenderer.tsx`. The renderer loads `compiled` through `ai/runtime/loadComponent.js` with the §7 components from `src/components/generated/approvedComponents.tsx`. It shows a static help panel on `ui.fallback` or on a load or render error. §9 example score corrected to 85 (both scoring formulas now agree). No shapes changed.
 - v0.9 (2026-11-25): the prompt describes a checkbox as "ticked" or "not ticked" instead of "filled" or "empty", so an unticked box (`false` / `"false"`) is no longer reported as filled. Prompt version `p-0.3` (cached results from `p-0.2` are not reused). No shapes changed.
 - v0.8 (2026-11-24): §9 states how `userInput` becomes `ui.initialValues`: checkbox text (`"true"` / `"false"`) is turned into a boolean, and a field the browser masks before sending (`tax_id`) is never seeded. `savedValue` is unchanged. No shapes changed.
 - v0.7 (2026-11-23): §6 closes sandbox escapes: banned keys in destructuring and object literals, free names limited to an allow-list, no property writes, no classes or getters/setters, `arguments` banned. `compiled` now starts with an own-key helper for runtime-key reads; the renderer contract is unchanged. Prompt version `p-0.2`.
@@ -222,7 +223,7 @@ Reply (the `/api/telemetry` fields plus `ui` and `generation`):
 
 ```json
 {
-  "success": true, "score": 100, "triggerAI": true, "stuckField": "annual_income", "savedValue": "<value typed by user>",
+  "success": true, "score": 85, "triggerAI": true, "stuckField": "annual_income", "savedValue": "<value typed by user>",
   "ui": { "type": "ui.generated", "sessionId": "s_8f2c", "componentId": "gen_3a91", "targetFieldId": "annual_income", "compiled": "...", "initialValues": { "annual_income": "<value typed by user>" } },
   "generation": { "status": "ok", "componentName": "AnnualIncomeWizard", "violations": [], "meta": { "latencyMs": 12, "cacheHit": false, "attempts": 1 } }
 }
