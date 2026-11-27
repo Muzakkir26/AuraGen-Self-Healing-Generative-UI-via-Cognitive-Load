@@ -1,0 +1,248 @@
+{
+  "generatedAt": "2026-11-26T11:47:15.817Z",
+  "provider": "mock",
+  "model": "mock-wizard-v1",
+  "isMock": true,
+  "runsPerScenario": 3,
+  "totals": {
+    "generations": 21,
+    "passFirstTryPct": 100,
+    "passAfterRepairPct": 100,
+    "rejected": 0,
+    "errors": 0,
+    "latencyMs": {
+      "mean": 18,
+      "p95": 25,
+      "max": 176
+    }
+  },
+  "violationCounts": {},
+  "byScenario": {
+    "text: Full name": {
+      "runs": 3,
+      "ok": 3,
+      "firstTry": 3
+    },
+    "text: PAN Number": {
+      "runs": 3,
+      "ok": 3,
+      "firstTry": 3
+    },
+    "date: Date of birth": {
+      "runs": 3,
+      "ok": 3,
+      "firstTry": 3
+    },
+    "number: Annual income": {
+      "runs": 3,
+      "ok": 3,
+      "firstTry": 3
+    },
+    "select: Employment type": {
+      "runs": 3,
+      "ok": 3,
+      "firstTry": 3
+    },
+    "text: IFSC code": {
+      "runs": 3,
+      "ok": 3,
+      "firstTry": 3
+    },
+    "checkbox: I agree to the credit check": {
+      "runs": 3,
+      "ok": 3,
+      "firstTry": 3
+    }
+  },
+  "rows": [
+    {
+      "scenario": "text: Full name",
+      "run": 1,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 176,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "text: Full name",
+      "run": 2,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 18,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "text: Full name",
+      "run": 3,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 17,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "text: PAN Number",
+      "run": 1,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 25,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "text: PAN Number",
+      "run": 2,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 17,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "text: PAN Number",
+      "run": 3,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 12,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "date: Date of birth",
+      "run": 1,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 8,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "date: Date of birth",
+      "run": 2,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 7,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "date: Date of birth",
+      "run": 3,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 8,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "number: Annual income",
+      "run": 1,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 6,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "number: Annual income",
+      "run": 2,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 6,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "number: Annual income",
+      "run": 3,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 9,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "select: Employment type",
+      "run": 1,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 7,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "select: Employment type",
+      "run": 2,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 9,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "select: Employment type",
+      "run": 3,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 7,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "text: IFSC code",
+      "run": 1,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 9,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "text: IFSC code",
+      "run": 2,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 6,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "text: IFSC code",
+      "run": 3,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 12,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "checkbox: I agree to the credit check",
+      "run": 1,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 5,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "checkbox: I agree to the credit check",
+      "run": 2,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 5,
+      "violations": [],
+      "error": null
+    },
+    {
+      "scenario": "checkbox: I agree to the credit check",
+      "run": 3,
+      "status": "ok",
+      "attempts": 1,
+      "latencyMs": 7,
+      "violations": [],
+      "error": null
+    }
+  ]
+}

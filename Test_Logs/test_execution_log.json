@@ -1,0 +1,66 @@
+{
+    "project": "AuraGen",
+    "timestamp": "2026-11-21T19:06:42.478826+05:30",
+    "overall_status": "PASS",
+    "total_suites": 4,
+    "passed": 4,
+    "failed": 0,
+    "errors": 0,
+    "total_tests": 17,
+    "suite_pass_rate_percent": 100.0,
+    "elapsed_seconds": 1.447,
+    "suites": [
+        {
+            "test_name": "test_functional_cognitive_engine.py",
+            "timestamp": "2026-11-21T19:06:42.479268+05:30",
+            "status": "PASS",
+            "return_code": 0,
+            "tests_run": 4,
+            "failures": 0,
+            "errors": 0,
+            "elapsed_seconds": 0.348,
+            "error_details": [],
+            "stdout": "======================================================================\n AURAGEN FUNCTIONAL TESTING: COGNITIVE ENGINE & HEURISTICS\n======================================================================\n  [PASS] Cursor Jitter Entropy: 1.0000\n  [PASS] Composite ECL Index: 0.7250 (Threshold: 0.70)\n  [PASS] Hick-Hyman Decision Friction: 0.9262\n  [PASS] Progressive Disclosure: 18 fields transformed into 3-step Wizard\n",
+            "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.001s\n\nOK\n"
+        },
+        {
+            "test_name": "test_api_and_schemas.py",
+            "timestamp": "2026-11-21T19:06:42.827481+05:30",
+            "status": "PASS",
+            "return_code": 0,
+            "tests_run": 6,
+            "failures": 0,
+            "errors": 0,
+            "elapsed_seconds": 0.321,
+            "error_details": [],
+            "stdout": "======================================================================\n AURAGEN API BEHAVIOR & SCHEMA VALIDATION TESTS\n======================================================================\n  [PASS] AST Schema: Correctly caught missing 'id' error\n  [PASS] API Ingest: Returns HTTP 202 Accepted on valid telemetry payload\n  [PASS] API Ingest: Returns HTTP 422 Unprocessable Entity on bad data types\n  [PASS] API Rate Limiting: Returns HTTP 429 after exceeding 60 req/s burst limit\n  [PASS] AST Schema: Correctly rejected unregistered component 'QuantumWidget'\n  [PASS] AST Schema: Valid component tree validated successfully\n",
+            "stderr": "......\n----------------------------------------------------------------------\nRan 6 tests in 0.002s\n\nOK\n"
+        },
+        {
+            "test_name": "test_ui_responsive_and_a11y.py",
+            "timestamp": "2026-11-21T19:06:43.148264+05:30",
+            "status": "PASS",
+            "return_code": 0,
+            "tests_run": 3,
+            "failures": 0,
+            "errors": 0,
+            "elapsed_seconds": 0.44,
+            "error_details": [],
+            "stdout": "======================================================================\n AURAGEN UI RESPONSIVE & WCAG 2.2 AA ACCESSIBILITY TESTS\n======================================================================\n  [PASS] Invariant I1 (Zero Data Loss): All user draft keystrokes preserved across viewport resize\n  [PASS] Responsive Reflow: Desktop (3 cols) successfully folded into Mobile (1 col)\n  [PASS] Invariant I4 (WCAG 2.2 AA): Contrast 4.48:1 auto-tuned to 7.00:1 (#595959)\n",
+            "stderr": "...\n----------------------------------------------------------------------\nRan 3 tests in 0.001s\n\nOK\n"
+        },
+        {
+            "test_name": "test_failure_and_fallback.py",
+            "timestamp": "2026-11-21T19:06:43.588143+05:30",
+            "status": "PASS",
+            "return_code": 0,
+            "tests_run": 4,
+            "failures": 0,
+            "errors": 0,
+            "elapsed_seconds": 0.338,
+            "error_details": [],
+            "stdout": "======================================================================\n AURAGEN FAILURE, FALLBACK & RESILIENCE TESTS\n======================================================================\n  [PASS] Cycle Detector: Circular AST reference loop detected without stack overflow crash\n  [PASS] Fallback Resilience: Upstream LLM timeout cleanly caught; heuristic fallback mounted\n  [PASS] Streaming Recovery: Malformed JSON stream chunk caught; prior valid AST preserved\n  [PASS] Offline Resilience: 10 events buffered during network drop and cleanly replayed on reconnect\n",
+            "stderr": "....\n----------------------------------------------------------------------\nRan 4 tests in 0.001s\n\nOK\n"
+        }
+    ]
+}

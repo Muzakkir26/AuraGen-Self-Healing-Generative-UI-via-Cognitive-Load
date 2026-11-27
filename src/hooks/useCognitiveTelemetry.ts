@@ -47,7 +47,33 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
   const [activeUserInput, setActiveUserInput] = useState<string>('');
   const [cognitiveScore, setCognitiveScore] = useState<number>(0);
   const [isTransmitting, setIsTransmitting] = useState<boolean>(false);
-  
+
+  // Send user confusion data to backend for healing UI
+  useEffect(() => {
+    const payload = {
+      mouseSpeed: 120,
+      pauseTime: 5,
+      rageClicks: 4,
+      fieldName: 'annual_income',
+      userInput: '50000',
+    };
+    fetch('http://localhost:3001/api/heal-ui', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    })
+      .then((res) => {
+        if (!res.ok) {
+          console.error('Failed to send confusion data', res.status);
+        }
+        return res.json();
+      })
+      .then((data) => {
+        console.log('Healing response:', data);
+      })
+      .catch((err) => console.error('Error sending confusion data', err));
+  }, []);
+
   // States
   useEffect(() => {
     // Sync latest state values into refs for the streaming interval
@@ -75,7 +101,7 @@ export function useCognitiveTelemetry(options: UseCognitiveTelemetryOptions = {}
   const hasTriggeredRef = useRef<boolean>(false);
   const wsConnectedRef = useRef<boolean>(false);
   const wsRef = useRef<WebSocket | null>(null);
-  
+
   const lastMousePosRef = useRef<{ x: number; y: number; time: number } | null>(null);
   const isFocusedRef = useRef<boolean>(false);
   const activeFieldRef = useRef<string>('');

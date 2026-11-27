@@ -1,0 +1,5 @@
+Test ID,Subsystem,Scenario Description,Inputs / Preconditions,Expected Result,Priority,Status
+TC-INVAL-001,Schema Validator,Missing mandatory AST schema attributes,Node missing mandatory 'id' and 'type',"Throws SchemaValidationError, rejects AST",P0,PASS
+TC-INVAL-002,Schema Validator,Unsupported component token type,Component type = 'QuantumWidget',Rejects with unregistered component enum error,P1,PASS
+TC-INVAL-003,API Behavior,Malformed telemetry batch payload,"Non-numeric timestamps, negative coords",Returns HTTP 422 Unprocessable Entity,P1,PASS
+TC-INVAL-004,Fallback Engine,Unrecognized node healing fallback,Unknown node inside valid container,Synthesizer replaces with safe container fallback,P1,PASS
