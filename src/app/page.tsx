@@ -7,6 +7,8 @@ import { TelemetryMonitorHUD } from '@/components/telemetry/TelemetryMonitorHUD'
 import { useCognitiveTelemetry } from '@/hooks/useCognitiveTelemetry';
 import { Badge } from '@/components/ui/Badge';
 import { Button } from '@/components/ui/Button';
+import { DynamicRenderer } from '@/components/DynamicRenderer';
+import { requestHealedUi, type FieldValues, type UiMessage } from '@/lib/healUi';
 import {
   Sparkles,
   FileCode,
@@ -22,6 +24,9 @@ export default function AuraGenPortalPage() {
   const [stuckField, setStuckField] = useState<string>('');
   const [savedValue, setSavedValue] = useState<string>('');
   const [notification, setNotification] = useState<string | null>(null);
+  // Healed UI from POST /api/heal-ui and the values the user completed in it.
+  const [healUi, setHealUi] = useState<UiMessage | null>(null);
+  const [appliedValues, setAppliedValues] = useState<FieldValues | null>(null);
 
   // Check URL query param ?debug=true or NEXT_PUBLIC_SHOW_DEBUG=true
   useEffect(() => {
@@ -40,6 +45,7 @@ export default function AuraGenPortalPage() {
     rageClicks,
     activeFieldName,
     activeUserInput,
+    fieldValues,
     cognitiveScore,
     isSimulating,
     isTriggered,
@@ -57,7 +63,18 @@ export default function AuraGenPortalPage() {
     enableWebSocket: true,
     streamingIntervalMs: 800,
     frictionThreshold: 70,
-    onTriggerAI: (response) => {
+    onTriggerAI: (response, payload) => {
+      // Ask the backend for a generated wizard for the stuck field, using the live telemetry.
+      if (payload) {
+        requestHealedUi(payload)
+          .then((reply) => {
+            if (reply.ui) setHealUi(reply.ui);
+          })
+          .catch((err) => {
+            console.warn('heal-ui unavailable, showing the static help', err);
+            setHealUi({ type: 'ui.fallback', sessionId: 'local', targetFieldId: payload.fieldName, reason: 'backend-unreachable' });
+          });
+      }
       setStuckField(response.stuckField ?? '');
       setSavedValue(response.savedValue || '');
       if (isDebug) {
@@ -179,8 +196,27 @@ export default function AuraGenPortalPage() {
             stuckField={stuckField}
             savedValue={savedValue}
             cognitiveScore={cognitiveScore}
-            onReset={resetTelemetry}
+            onReset={() => {
+              setHealUi(null);
+              resetTelemetry();
+            }}
             isDebug={isDebug}
+            appliedValues={appliedValues}
+            healedUi={
+              <DynamicRenderer
+                ui={healUi}
+                currentValues={fieldValues}
+                onSubmit={(values) => {
+                  setAppliedValues(values);
+                  setHealUi(null);
+                  resetTelemetry();
+                }}
+                onDismiss={() => {
+                  setHealUi(null);
+                  resetTelemetry();
+                }}
+              />
+            }
           />
         )}
 
