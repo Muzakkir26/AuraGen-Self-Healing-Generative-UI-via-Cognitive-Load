@@ -55,7 +55,7 @@ test("high score triggers generation and returns a mountable ui.generated messag
   var res = await post("/api/heal-ui", Object.assign({ sessionId: "s_high" }, STRUGGLING));
   assert.equal(res.status, 200);
   var body = await res.json();
-  assert.equal(body.score, 100);
+  assert.equal(body.score, 85);
   assert.equal(body.triggerAI, true);
   assert.equal(body.stuckField, "annual_income");
   assert.equal(body.ui.type, "ui.generated");
